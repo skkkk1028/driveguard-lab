@@ -15,6 +15,7 @@ from .risk import (
     classify_risk_level,
     is_collision,
 )
+from .runner import run_lead_braking_scenario
 from .scenarios import (
     advance_lead_braking_scenario_step,
     initialize_lead_braking_scenario,
@@ -34,4 +35,5 @@ __all__ = (
     "classify_risk_level",
     "is_collision",
     "initialize_lead_braking_scenario",
+    "run_lead_braking_scenario",
 )

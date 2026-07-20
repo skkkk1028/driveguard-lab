@@ -38,21 +38,21 @@ Implemented:
 - Single Scenario Step for the No Assist strategy
 - Sub-step Handling at Brake Start Boundary
 - SimulationFrame Assembly from end-of-step states and metrics
+- Bounded No Assist Full Simulation Loop composed from scenario steps
+- Basic Simulation Events for lead braking, risk changes, collision, and completion
+- Simulation Summary aggregation across retained frames
+- SimulationResult Assembly with schema version, frame tuple, and event tuple
 
 Not implemented:
 
-- Full Simulation Loop
-- Simulation Events
-- Simulation Summary
-- SimulationResult Assembly
 - Warning Only Strategy
 - AEB Strategy
 - ACC
 - API Simulation Endpoint
 - API or frontend simulation features
 
-These implemented pieces are not a complete lead-braking simulation and do not
-make an AEB decision.
+The complete runner applies only No Assist. It does not make warning or AEB
+decisions, and collision time remains a discrete frame-end observation.
 
 ## Boundaries and constraints
 

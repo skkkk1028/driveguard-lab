@@ -61,3 +61,17 @@
 - A final scenario step must not exceed `max_simulation_time_s`.
 - A single-step scenario function must not run a complete simulation loop.
 - Stage 6 collision state must not automatically create events or summaries.
+- A complete runner must compose scenario initialization and single-step functions;
+  it must not copy their motion, metric, or risk logic.
+- Full simulation loops must have a deterministic upper bound.
+- No Assist runs stop at the first collision frame or maximum simulation time and
+  retain that final frame.
+- Collision event time is the discrete collision-frame time; do not infer an exact
+  within-step collision instant.
+- Emit lead-braking start and collision events at most once per run.
+- At one time, order risk change before collision and completion.
+- Every completed run emits `SIMULATION_COMPLETED` at its final frame time.
+- Aggregate summaries from all retained frames without rounding; ignore `None`
+  values when finding minimum TTC.
+- Store result frames and events as immutable tuples.
+- No Assist runners must not emit assisted-control trigger events.

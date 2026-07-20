@@ -4,10 +4,9 @@ DriveGuard Lab 是一个面向智能驾驶危险场景的可重复仿真与碰�
 
 ## 当前开发状态
 
-阶段 1 至阶段 6 已完成工程基线、领域数据契约、基础运动与风险计算，以及前车急刹
-场景的初始化和单时间步双车推进。制动开始落在时间步内部时会分段推进。目前只支持
-No Assist；完整场景循环、事件、摘要、Warning Only 和 AEB 尚未实现，也不能从前端
-运行仿真。
+阶段 1 至阶段 7 已完成工程基线、领域数据契约、基础运动与风险计算，以及 No Assist
+前车急刹场景的完整确定性运行。结果包含有序帧、基础事件、停止条件、摘要和稳定的
+`SimulationResult`。Warning Only、AEB、API 和前端仿真功能尚未实现。
 
 ## v1.0 目标范围
 
@@ -90,9 +89,9 @@ npm.cmd run build
 ## 尚未实现
 
 当前已有简化的运动推进、风险指标和分类、点车辆碰撞状态，以及 No Assist 前车急刹
-场景初始化和单步双车推进。尚无完整场景循环、批量帧、事件、摘要、Warning Only、
-AEB/ACC 控制、场景运行接口、前端仿真功能、图表、数据库、WebSocket、SUMO、CARLA、
-TraCI 或 OpenSCENARIO 集成。
+完整运行器。碰撞仅在离散帧结束时识别，不求精确连续碰撞时刻。尚无 Warning Only、
+AEB/ACC 控制、新 API、前端仿真功能、图表、数据库、WebSocket、SUMO、CARLA、TraCI
+或 OpenSCENARIO 集成。
 
 ## 许可证
 

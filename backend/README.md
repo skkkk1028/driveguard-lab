@@ -7,9 +7,9 @@ does not implement a scenario runner. Independent kinematic metric functions,
 heuristic risk classification, point-vehicle collision-state checking, and
 `RiskMetrics` assembly are available. A No Assist lead-braking scenario can be
 initialized and advanced by one time step, including a brake-start boundary inside
-that step. No assisted-driving strategy or collision event is implemented. There
-is no full scenario loop, event generation, summary, Warning Only behavior, or AEB
-behavior.
+that step. The complete No Assist runner returns ordered frame and basic event
+tuples, an aggregate summary, and a versioned `SimulationResult`. No
+assisted-driving strategy, Warning Only behavior, or AEB behavior is implemented.
 
 ## Local setup
 
