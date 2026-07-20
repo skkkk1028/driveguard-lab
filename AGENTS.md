@@ -11,3 +11,11 @@
 - Do not automatically create, configure, or push to a remote repository.
 - Do not integrate with real-vehicle control hardware.
 - Do not describe this simulation project as a safety-certified product.
+- Floating-point inputs and outputs must not contain NaN or infinity.
+- Use `None` when a risk metric is not applicable.
+- Braking deceleration configuration uses a positive magnitude.
+- `VehicleState.acceleration_mps2` is a signed value.
+- Stable enum values and the schema version are public data contracts; do not
+  change them without an explicit migration.
+- Keep domain objects immutable.
+- Keep Python code compatible with Python 3.11.

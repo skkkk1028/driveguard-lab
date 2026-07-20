@@ -1,8 +1,9 @@
 # DriveGuard Lab Backend
 
-This directory contains the minimal FastAPI foundation for DriveGuard Lab.
-Stage 1 exposes only `GET /health`; no simulation or risk-assessment behavior is
-implemented.
+This directory contains the minimal FastAPI application and the pure Python domain
+contracts for DriveGuard Lab. The API exposes only `GET /health`; the domain layer
+defines data representation and validation but no simulation or risk-assessment
+behavior.
 
 ## Local setup
 

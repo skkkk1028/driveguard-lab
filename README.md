@@ -4,8 +4,9 @@ DriveGuard Lab 是一个面向智能驾驶危险场景的可重复仿真与碰�
 
 ## 当前开发状态
 
-阶段 1（工程初始化与开发基线）已完成。当前仅包含最小 FastAPI 健康接口、React
-占位页面、测试与工程质量配置，不包含仿真业务能力。
+阶段 1 的工程基线和阶段 2 的领域数据契约已经完成。当前包含最小 FastAPI 健康接口、
+React 占位页面，以及纯 Python 的领域枚举、SI 单位转换、不可变输入输出契约和 JSON
+兼容序列化。仿真算法尚未实现，当前不能运行驾驶场景，也不具备 AEB 功能。
 
 ## v1.0 目标范围
 
@@ -87,8 +88,9 @@ npm.cmd run build
 
 ## 尚未实现
 
-当前没有车辆运动仿真、TTC、THW、制动距离、碰撞风险、AEB/ACC、场景运行接口、
-图表、数据库、WebSocket、SUMO、CARLA、TraCI 或 OpenSCENARIO 集成。
+当前没有车辆运动仿真、TTC/THW 或制动距离计算、碰撞风险判断、AEB/ACC 控制、场景
+运行接口、图表、数据库、WebSocket、SUMO、CARLA、TraCI 或 OpenSCENARIO 集成。
+阶段 2 中的风险和控制字段仅是未来结果的数据容器，不代表相应算法已经实现。
 
 ## 许可证
 

@@ -5,7 +5,7 @@ Only one explicitly requested phase is implemented at a time.
 | Phase | Scope | Status |
 | --- | --- | --- |
 | 1 | Workspace initialization and development baseline | Complete |
-| 2 | Domain model, unit conventions, and simulation data contracts | Not started |
+| 2 | Domain model, unit conventions, and simulation data contracts | Complete |
 | 3 | Fixed-step simulation clock and runner | Not started |
 | 4 | Longitudinal vehicle dynamics | Not started |
 | 5 | Scenario configuration and validation | Not started |
