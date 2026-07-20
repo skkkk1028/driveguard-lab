@@ -15,10 +15,15 @@ from .risk import (
     classify_risk_level,
     is_collision,
 )
+from .scenarios import (
+    advance_lead_braking_scenario_step,
+    initialize_lead_braking_scenario,
+)
 
 __all__ = (
     "DEFAULT_RISK_THRESHOLDS",
     "RiskThresholds",
+    "advance_lead_braking_scenario_step",
     "advance_vehicle",
     "calculate_ego_stopping_distance_m",
     "calculate_gap_m",
@@ -28,4 +33,5 @@ __all__ = (
     "calculate_ttc_s",
     "classify_risk_level",
     "is_collision",
+    "initialize_lead_braking_scenario",
 )

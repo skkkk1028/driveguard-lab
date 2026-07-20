@@ -68,6 +68,15 @@ returns a new `VehicleState`. Identical inputs produce identical outputs. The
 implementation uses no cache, randomness, wall-clock time, environment state,
 file access, or network access.
 
+## Scenario-layer use
+
+The lead-braking scenario layer reuses `advance_vehicle` for both ego and lead
+state changes; it must not copy the stopping integration. When an applied control
+input changes inside a scenario step, the scenario layer may call this primitive
+for multiple positive-duration sub-steps. The single-vehicle dynamics primitive
+remains unaware of scenario clocks, brake-start times, risk levels, and driving
+strategies.
+
 ## Model limitations
 
 This simplified point-mass model does not account for:
@@ -81,7 +90,8 @@ This simplified point-mass model does not account for:
 - Jerk
 - Lateral motion
 
-It advances only one vehicle for one time step. It does not implement multiple
-vehicles, scenarios, collisions, risk metrics, control strategies, or a simulation
+It advances only one vehicle for one constant-input time interval. Scenario code
+may compose calls for two vehicles or a control boundary, but this module does not
+implement scenarios, collisions, risk metrics, control strategies, or a simulation
 loop. It does not represent real vehicle dynamics and must not be used to control a
 real vehicle.

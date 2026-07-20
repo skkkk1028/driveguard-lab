@@ -50,3 +50,14 @@
 - Do not describe default risk thresholds as industry standards or certified
   safety values.
 - Risk classification must not directly produce a control action.
+- A scenario frame time identifies the time of its already-advanced states and
+  metrics.
+- Split a scenario step into sub-steps when lead braking starts inside it; never
+  round brake start to a time-step boundary.
+- Use right-continuous acceleration semantics at the lead brake-start boundary.
+- Under No Assist, ego applied acceleration is always zero.
+- Risk level must not directly alter vehicle motion.
+- Scenario code must reuse `advance_vehicle` instead of copying its integration.
+- A final scenario step must not exceed `max_simulation_time_s`.
+- A single-step scenario function must not run a complete simulation loop.
+- Stage 6 collision state must not automatically create events or summaries.

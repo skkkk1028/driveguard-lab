@@ -34,18 +34,25 @@ Implemented:
 - Risk Classification using centralized, validated heuristic thresholds
 - Basic Point-Vehicle Collision State using the `gap_m <= 0` boundary
 - RiskMetrics Assembly from the existing metric functions and classifier
+- Lead Braking Scenario Initialization for the time-zero frame
+- Single Scenario Step for the No Assist strategy
+- Sub-step Handling at Brake Start Boundary
+- SimulationFrame Assembly from end-of-step states and metrics
 
 Not implemented:
 
-- Scenario Execution
-- Driving Strategy
-- Simulation Runner or multi-step loop
-- Events
-- Summary Generation
+- Full Simulation Loop
+- Simulation Events
+- Simulation Summary
+- SimulationResult Assembly
+- Warning Only Strategy
+- AEB Strategy
+- ACC
+- API Simulation Endpoint
 - API or frontend simulation features
 
-These implemented pieces are not a complete risk engine and do not make an AEB
-decision.
+These implemented pieces are not a complete lead-braking simulation and do not
+make an AEB decision.
 
 ## Boundaries and constraints
 
