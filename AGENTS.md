@@ -37,3 +37,16 @@
   calculations.
 - Base metric functions must not infer a risk level.
 - Fail when finite inputs produce a non-finite calculation result.
+- Centralize all risk thresholds in `RiskThresholds`; do not scatter TTC or THW
+  magic numbers across other modules.
+- Do not change the risk-classification priority without an explicitly requested
+  contract change.
+- Risk-threshold boundaries use inclusive `<=` comparisons.
+- Apply the stopping-distance danger condition only while
+  `relative_speed_mps > 0`.
+- In the point-vehicle model, `gap_m <= 0` represents collision state.
+- The classifier consumes precomputed metrics and must not recalculate them.
+- Base metric functions must not call back into the risk classifier.
+- Do not describe default risk thresholds as industry standards or certified
+  safety values.
+- Risk classification must not directly produce a control action.

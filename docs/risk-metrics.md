@@ -2,9 +2,10 @@
 
 Stage 4 implements independent, deterministic functions for longitudinal gap,
 relative speed, time to collision (TTC), time headway (THW), and theoretical ego
-stopping distance. These functions calculate kinematic quantities only. They do
-not classify risk, detect collision events, select a driving strategy, or execute
-a scenario.
+stopping distance. Stage 5 can assemble these values into a complete `RiskMetrics`
+object, whose `risk_level` is assigned by the separate risk classifier. The base
+metric functions remain independent of thresholds and do not classify risk,
+generate collision events, select a driving strategy, or execute a scenario.
 
 ## Point-vehicle model
 
@@ -55,7 +56,9 @@ gap_m > 0 and relative_speed_mps <= 0   → None
 Any strictly positive relative speed counts as closing; no epsilon is applied.
 `None` means TTC is currently not applicable because the vehicles are not closing.
 `0.0` means the reference points have already reached or passed the zero-gap state.
-It does not mean a collision event has been generated.
+It does not mean a collision event has been generated. TTC zero and collision
+state are distinct engineering concepts, although the current point-vehicle model
+uses the same `gap_m <= 0` contact boundary for both.
 
 ## THW
 
@@ -101,7 +104,8 @@ measured real-vehicle stopping distance.
 NaN and positive or negative infinity are prohibited in both inputs and results.
 The functions do not return sentinel values and do not round for UI display.
 
-Risk thresholds, risk classification, collision detection or events, AEB, and
-complete scenario execution remain unimplemented. These values are simulation
-research quantities, not safety-certified vehicle data, and must not be used for
-real-vehicle control.
+Risk thresholds and heuristic classification are implemented outside these
+formulas, together with a Boolean point-vehicle collision-state check. Collision
+events, AEB, and complete scenario execution remain unimplemented. These values
+are simulation research quantities, not safety-certified vehicle data, and must
+not be used for real-vehicle control.
