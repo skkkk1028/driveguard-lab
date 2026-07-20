@@ -31,10 +31,12 @@ Implemented:
 - Validated input and output data contracts
 - SI speed unit conversion
 - JSON-compatible in-memory serialization
+- Vehicle Dynamics: single vehicle, single time step, one-dimensional
+  constant-acceleration state advancement
 
 Not implemented:
 
-- Vehicle Dynamics
+- Multi-vehicle scenarios
 - Risk Metrics Calculation
 - Driving Strategy
 - Simulation Runner

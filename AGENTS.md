@@ -19,3 +19,11 @@
   change them without an explicit migration.
 - Keep domain objects immutable.
 - Keep Python code compatible with Python 3.11.
+- Vehicle speed must never fall below zero, and the one-dimensional model does not
+  support reversing.
+- When braking stops a vehicle inside a time step, integrate only to the stopping
+  instant; never compute full-step displacement and then clamp negative speed.
+- The acceleration passed to `advance_vehicle` overrides acceleration stored in the
+  prior state.
+- Do not round physical calculations for UI display.
+- Identical simulation inputs must produce identical outputs.

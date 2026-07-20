@@ -1,9 +1,9 @@
 # DriveGuard Lab Backend
 
 This directory contains the minimal FastAPI application and the pure Python domain
-contracts for DriveGuard Lab. The API exposes only `GET /health`; the domain layer
-defines data representation and validation but no simulation or risk-assessment
-behavior.
+contracts for DriveGuard Lab. The API exposes only `GET /health`. The simulation
+package provides deterministic, single-vehicle, single-step state advancement but
+does not implement a scenario runner or risk-assessment behavior.
 
 ## Local setup
 
