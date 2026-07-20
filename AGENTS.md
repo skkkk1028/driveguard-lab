@@ -27,3 +27,13 @@
   prior state.
 - Do not round physical calculations for UI display.
 - Identical simulation inputs must produce identical outputs.
+- Calculate gap as `lead.position_m - ego.position_m`.
+- Calculate relative speed as `ego.speed_mps - lead.speed_mps`.
+- TTC returns `None` when it is not applicable and `0.0` when reference points are
+  already in contact or overlapping.
+- THW returns `None` while ego is stationary.
+- Braking-distance calculations use a positive deceleration magnitude.
+- Do not introduce arbitrary epsilon thresholds or UI rounding into kinematic
+  calculations.
+- Base metric functions must not infer a risk level.
+- Fail when finite inputs produce a non-finite calculation result.

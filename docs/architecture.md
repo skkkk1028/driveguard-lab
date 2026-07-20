@@ -33,12 +33,20 @@ Implemented:
 - JSON-compatible in-memory serialization
 - Vehicle Dynamics: single vehicle, single time step, one-dimensional
   constant-acceleration state advancement
+- Kinematic Metrics:
+  - Longitudinal gap
+  - Relative speed
+  - TTC
+  - THW
+  - Theoretical ego stopping distance
 
 Not implemented:
 
 - Multi-vehicle scenarios
-- Risk Metrics Calculation
+- Risk Classification
+- Collision Detection
 - Driving Strategy
+- Scenario Execution
 - Simulation Runner
 
 ## Boundaries and constraints

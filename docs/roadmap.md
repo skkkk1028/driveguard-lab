@@ -7,7 +7,7 @@ Only one explicitly requested phase is implemented at a time.
 | 1 | Workspace initialization and development baseline | Complete |
 | 2 | Domain model, unit conventions, and simulation data contracts | Complete |
 | 3 | Deterministic fixed-step single-vehicle dynamics | Complete |
-| 4 | Core gap and risk metric functions | Not started |
+| 4 | Core gap and risk metric functions | Complete |
 | 5 | Scenario configuration and validation | Not started |
 | 6 | Lead-vehicle emergency-braking scenario | Not started |
 | 7 | TTC and THW risk metrics | Not started |

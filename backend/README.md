@@ -3,7 +3,8 @@
 This directory contains the minimal FastAPI application and the pure Python domain
 contracts for DriveGuard Lab. The API exposes only `GET /health`. The simulation
 package provides deterministic, single-vehicle, single-step state advancement but
-does not implement a scenario runner or risk-assessment behavior.
+does not implement a scenario runner. Independent kinematic metric functions are
+available, but risk classification and collision detection are not implemented.
 
 ## Local setup
 
