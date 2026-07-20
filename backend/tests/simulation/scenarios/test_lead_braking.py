@@ -148,15 +148,37 @@ def test_initialized_frame_is_immutable() -> None:
         setattr(frame, field_name, 1.0)
 
 
-@pytest.mark.parametrize(
-    "strategy",
-    [DrivingStrategy.WARNING_ONLY, DrivingStrategy.AEB],
-)
-def test_initialize_rejects_unsupported_strategy(
-    strategy: DrivingStrategy,
-) -> None:
+def test_initialize_rejects_aeb_strategy() -> None:
     with pytest.raises(ValueError, match="strategy"):
-        initialize_lead_braking_scenario(_scenario(strategy=strategy))
+        initialize_lead_braking_scenario(
+            _scenario(strategy=DrivingStrategy.AEB)
+        )
+
+
+@pytest.mark.parametrize(
+    ("initial_gap_m", "expected_action"),
+    [
+        (30.0, ControlAction.NONE),
+        (15.0, ControlAction.WARNING),
+        (5.0, ControlAction.WARNING),
+    ],
+)
+def test_warning_only_initial_action_uses_initial_risk_level(
+    initial_gap_m: float,
+    expected_action: ControlAction,
+) -> None:
+    scenario = _scenario(
+        ego_initial_speed_mps=10.0,
+        lead_initial_speed_mps=0.0,
+        initial_gap_m=initial_gap_m,
+        ego_reaction_time_s=0.0,
+        ego_max_braking_deceleration_mps2=100.0,
+        strategy=DrivingStrategy.WARNING_ONLY,
+    )
+
+    frame = initialize_lead_braking_scenario(scenario)
+
+    assert frame.control_action is expected_action
 
 
 def test_step_before_braking_advances_both_vehicles_at_constant_speed() -> None:
@@ -451,12 +473,8 @@ def test_step_rejects_time_at_or_after_maximum(time_s: float) -> None:
         advance_lead_braking_scenario_step(current, scenario)
 
 
-@pytest.mark.parametrize(
-    "strategy",
-    [DrivingStrategy.WARNING_ONLY, DrivingStrategy.AEB],
-)
-def test_step_rejects_unsupported_strategy(strategy: DrivingStrategy) -> None:
-    scenario = _scenario(strategy=strategy)
+def test_step_rejects_aeb_strategy() -> None:
+    scenario = _scenario(strategy=DrivingStrategy.AEB)
     current = _frame(
         scenario,
         time_s=0.0,
@@ -468,6 +486,36 @@ def test_step_rejects_unsupported_strategy(strategy: DrivingStrategy) -> None:
 
     with pytest.raises(ValueError, match="strategy"):
         advance_lead_braking_scenario_step(current, scenario)
+
+
+def test_warning_only_action_recovers_without_latching_or_braking() -> None:
+    scenario = _scenario(strategy=DrivingStrategy.WARNING_ONLY)
+    stale_metrics = RiskMetrics(
+        gap_m=0.0,
+        relative_speed_mps=20.0,
+        ttc_s=0.0,
+        thw_s=0.0,
+        ego_stopping_distance_m=20.0,
+        risk_level=RiskLevel.EMERGENCY,
+    )
+    current = _frame(
+        scenario,
+        time_s=0.0,
+        ego_position_m=0.0,
+        ego_speed_mps=0.0,
+        ego_acceleration_mps2=-8.0,
+        lead_position_m=10.0,
+        lead_speed_mps=10.0,
+        metrics=stale_metrics,
+        control_action=ControlAction.WARNING,
+    )
+
+    result = advance_lead_braking_scenario_step(current, scenario)
+
+    assert result.metrics.risk_level is RiskLevel.SAFE
+    assert result.control_action is ControlAction.NONE
+    assert result.ego == VehicleState(0.0, 0.0, 0.0)
+    assert result.lead == VehicleState(15.0, 10.0, 0.0)
 
 
 def test_collision_at_end_does_not_truncate_or_clamp_step() -> None:

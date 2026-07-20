@@ -11,7 +11,7 @@ Only one explicitly requested phase is implemented at a time.
 | 5 | Risk classification, point-vehicle collision state, and `RiskMetrics` assembly | Complete |
 | 6 | Lead-vehicle emergency-braking scenario initialization and single-step advancement | Complete |
 | 7 | Complete deterministic No Assist runner, events, summary, and result | Complete |
-| 8 | Warning Only strategy | Not started |
+| 8 | Warning Only strategy | Complete |
 | 9 | Baseline AEB strategy | Not started |
 | 10 | Strategy evaluation and regression scenarios | Not started |
 | 11 | FastAPI simulation endpoints | Not started |

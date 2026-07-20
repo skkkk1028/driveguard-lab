@@ -353,13 +353,250 @@ def test_custom_thresholds_change_frame_risk_levels() -> None:
     assert default_result != custom_result
 
 
-@pytest.mark.parametrize(
-    "strategy",
-    [DrivingStrategy.WARNING_ONLY, DrivingStrategy.AEB],
-)
-def test_runner_rejects_unsupported_strategy(strategy: DrivingStrategy) -> None:
+def test_runner_rejects_aeb_strategy() -> None:
     with pytest.raises(ValueError, match="strategy"):
-        run_lead_braking_scenario(_scenario(strategy=strategy))
+        run_lead_braking_scenario(_scenario(strategy=DrivingStrategy.AEB))
+
+
+def test_initial_emergency_triggers_warning_at_zero_once() -> None:
+    scenario = _scenario(
+        ego_initial_speed_mps=10.0,
+        lead_initial_speed_mps=0.0,
+        initial_gap_m=5.0,
+        lead_brake_start_s=1.0,
+        ego_reaction_time_s=0.0,
+        ego_max_braking_deceleration_mps2=100.0,
+        max_simulation_time_s=1.5,
+        strategy=DrivingStrategy.WARNING_ONLY,
+    )
+
+    result = run_lead_braking_scenario(scenario)
+    warning_events = [
+        event
+        for event in result.events
+        if event.event_type is SimulationEventType.WARNING_TRIGGERED
+    ]
+
+    assert result.frames[0].control_action is ControlAction.WARNING
+    assert len(warning_events) == 1
+    assert warning_events[0].time_s == 0.0
+    assert warning_events[0].message == "Warning triggered."
+    assert result.summary.warning_trigger_time_s == 0.0
+    assert result.summary.aeb_trigger_time_s is None
+
+
+def test_first_entry_to_danger_triggers_warning_and_summary_time() -> None:
+    scenario = _scenario(
+        ego_initial_speed_mps=10.0,
+        lead_initial_speed_mps=10.0,
+        initial_gap_m=30.0,
+        lead_brake_start_s=0.0,
+        lead_braking_deceleration_mps2=5.0,
+        ego_reaction_time_s=0.0,
+        ego_max_braking_deceleration_mps2=100.0,
+        max_simulation_time_s=3.0,
+        strategy=DrivingStrategy.WARNING_ONLY,
+    )
+
+    result = run_lead_braking_scenario(scenario)
+    warning_event = next(
+        event
+        for event in result.events
+        if event.event_type is SimulationEventType.WARNING_TRIGGERED
+    )
+    warning_frame = next(
+        frame
+        for frame in result.frames
+        if frame.control_action is ControlAction.WARNING
+    )
+
+    assert warning_frame.metrics.risk_level.value == "danger"
+    assert warning_frame.time_s == 2.0
+    assert warning_event.time_s == warning_frame.time_s
+    assert result.summary.warning_trigger_time_s == 2.0
+
+
+def test_caution_only_run_never_triggers_warning() -> None:
+    scenario = _scenario(
+        ego_initial_speed_mps=10.0,
+        lead_initial_speed_mps=10.0,
+        initial_gap_m=30.0,
+        lead_brake_start_s=0.0,
+        lead_braking_deceleration_mps2=5.0,
+        ego_reaction_time_s=0.0,
+        ego_max_braking_deceleration_mps2=100.0,
+        max_simulation_time_s=1.5,
+        strategy=DrivingStrategy.WARNING_ONLY,
+    )
+
+    result = run_lead_braking_scenario(scenario)
+
+    assert result.frames[-1].metrics.risk_level.value == "caution"
+    assert all(
+        frame.control_action is ControlAction.NONE for frame in result.frames
+    )
+    assert SimulationEventType.WARNING_TRIGGERED not in _event_types(result)
+    assert result.summary.warning_trigger_time_s is None
+
+
+def test_warning_action_recovers_and_reentry_does_not_repeat_event() -> None:
+    scenario = _scenario(
+        ego_initial_speed_mps=5.0,
+        lead_initial_speed_mps=10.0,
+        initial_gap_m=5.0,
+        lead_brake_start_s=1.0,
+        lead_braking_deceleration_mps2=5.0,
+        ego_reaction_time_s=0.0,
+        ego_max_braking_deceleration_mps2=100.0,
+        max_simulation_time_s=4.0,
+        strategy=DrivingStrategy.WARNING_ONLY,
+    )
+
+    result = run_lead_braking_scenario(scenario)
+    actions = [frame.control_action for frame in result.frames]
+    warning_events = [
+        event
+        for event in result.events
+        if event.event_type is SimulationEventType.WARNING_TRIGGERED
+    ]
+
+    assert actions[0] is ControlAction.WARNING
+    assert ControlAction.NONE in actions[1:]
+    assert actions[6] is ControlAction.WARNING
+    assert len(warning_events) == 1
+    assert warning_events[0].time_s == 0.0
+
+
+def test_warning_only_preserves_no_assist_trajectory_metrics_and_collision() -> None:
+    no_assist = _scenario(
+        ego_initial_speed_mps=10.0,
+        lead_initial_speed_mps=0.0,
+        initial_gap_m=25.0,
+        lead_brake_start_s=2.5,
+        lead_braking_deceleration_mps2=1.0,
+        ego_reaction_time_s=0.0,
+        ego_max_braking_deceleration_mps2=100.0,
+        simulation_step_s=2.5,
+        max_simulation_time_s=3.0,
+        strategy=DrivingStrategy.NO_ASSIST,
+    )
+    warning_only = _scenario(
+        ego_initial_speed_mps=10.0,
+        lead_initial_speed_mps=0.0,
+        initial_gap_m=25.0,
+        lead_brake_start_s=2.5,
+        lead_braking_deceleration_mps2=1.0,
+        ego_reaction_time_s=0.0,
+        ego_max_braking_deceleration_mps2=100.0,
+        simulation_step_s=2.5,
+        max_simulation_time_s=3.0,
+        strategy=DrivingStrategy.WARNING_ONLY,
+    )
+
+    no_assist_result = run_lead_braking_scenario(no_assist)
+    warning_result = run_lead_braking_scenario(warning_only)
+
+    assert len(no_assist_result.frames) == len(warning_result.frames)
+    for no_assist_frame, warning_frame in zip(
+        no_assist_result.frames,
+        warning_result.frames,
+        strict=True,
+    ):
+        assert no_assist_frame.time_s == warning_frame.time_s
+        assert no_assist_frame.ego == warning_frame.ego
+        assert no_assist_frame.lead == warning_frame.lead
+        assert no_assist_frame.metrics == warning_frame.metrics
+        assert no_assist_frame.control_action is ControlAction.NONE
+        assert warning_frame.control_action in (
+            ControlAction.NONE,
+            ControlAction.WARNING,
+        )
+    assert no_assist_result.summary.collided == warning_result.summary.collided
+    assert no_assist_result.summary.duration_s == warning_result.summary.duration_s
+    assert no_assist_result.summary.minimum_gap_m == (
+        warning_result.summary.minimum_gap_m
+    )
+    assert no_assist_result.summary.minimum_ttc_s == (
+        warning_result.summary.minimum_ttc_s
+    )
+    assert no_assist_result.summary.final_gap_m == (
+        warning_result.summary.final_gap_m
+    )
+    assert tuple(
+        event
+        for event in no_assist_result.events
+        if event.event_type is not SimulationEventType.WARNING_TRIGGERED
+    ) == tuple(
+        event
+        for event in warning_result.events
+        if event.event_type is not SimulationEventType.WARNING_TRIGGERED
+    )
+    assert no_assist_result.summary.warning_trigger_time_s is None
+    assert warning_result.summary.warning_trigger_time_s == 2.5
+    assert no_assist_result.summary.aeb_trigger_time_s is None
+    assert warning_result.summary.aeb_trigger_time_s is None
+
+
+def test_warning_event_uses_required_same_time_event_order() -> None:
+    scenario = _scenario(
+        ego_initial_speed_mps=10.0,
+        lead_initial_speed_mps=0.0,
+        initial_gap_m=25.0,
+        lead_brake_start_s=2.5,
+        lead_braking_deceleration_mps2=1.0,
+        ego_reaction_time_s=0.0,
+        ego_max_braking_deceleration_mps2=100.0,
+        simulation_step_s=2.5,
+        max_simulation_time_s=3.0,
+        strategy=DrivingStrategy.WARNING_ONLY,
+    )
+
+    result = run_lead_braking_scenario(scenario)
+    events_at_collision = [
+        event.event_type for event in result.events if event.time_s == 2.5
+    ]
+
+    assert events_at_collision == [
+        SimulationEventType.LEAD_BRAKING_STARTED,
+        SimulationEventType.RISK_LEVEL_CHANGED,
+        SimulationEventType.WARNING_TRIGGERED,
+        SimulationEventType.COLLISION,
+        SimulationEventType.SIMULATION_COMPLETED,
+    ]
+    assert all(
+        current.time_s >= previous.time_s
+        for previous, current in zip(result.events, result.events[1:], strict=False)
+    )
+
+
+def test_warning_only_is_deterministic_and_emits_no_braking_actions_or_events() -> None:
+    scenario = _scenario(
+        ego_initial_speed_mps=10.0,
+        lead_initial_speed_mps=10.0,
+        initial_gap_m=30.0,
+        lead_brake_start_s=0.0,
+        lead_braking_deceleration_mps2=5.0,
+        ego_reaction_time_s=0.0,
+        ego_max_braking_deceleration_mps2=100.0,
+        max_simulation_time_s=3.0,
+        strategy=DrivingStrategy.WARNING_ONLY,
+    )
+    prohibited_events = {
+        SimulationEventType.PARTIAL_BRAKING_TRIGGERED,
+        SimulationEventType.EMERGENCY_BRAKING_TRIGGERED,
+    }
+
+    first = run_lead_braking_scenario(scenario)
+    second = run_lead_braking_scenario(scenario)
+
+    assert first == second
+    assert first.scenario is scenario
+    assert prohibited_events.isdisjoint(_event_types(first))
+    assert all(frame.ego.acceleration_mps2 == 0.0 for frame in first.frames)
+    assert all(
+        frame.control_action in (ControlAction.NONE, ControlAction.WARNING)
+        for frame in first.frames
+    )
 
 
 def test_input_is_unchanged_and_repeated_runs_are_identical() -> None:

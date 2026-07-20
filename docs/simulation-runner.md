@@ -1,68 +1,82 @@
-# No Assist Simulation Runner
+# Simulation Runner
 
-Stage 7 composes the existing lead-braking initializer and single-step primitive
-into a complete deterministic `SimulationResult`. It supports only
-`DrivingStrategy.NO_ASSIST`; Warning Only and AEB configurations are rejected.
+The deterministic lead-braking runner supports `DrivingStrategy.NO_ASSIST` and
+`DrivingStrategy.WARNING_ONLY`. It composes the existing initializer and
+single-step primitive into a complete `SimulationResult`; AEB is rejected.
 
 ## Run flow and frames
 
-The runner initializes and stores the `t = 0` frame, repeatedly calls
+The runner stores the `t = 0` frame, repeatedly calls
 `advance_lead_braking_scenario_step`, and stores each returned frame. It does not
-reimplement vehicle motion, brake-boundary segmentation, risk metrics, or risk
+reimplement vehicle motion, brake-boundary segmentation, metrics, or risk
 classification.
 
-The immutable result uses a tuple of frames in non-decreasing time order. Every
-frame has `ControlAction.NONE`. The final frame is retained and is either the first
-frame whose point-vehicle gap is non-positive or the frame at
-`max_simulation_time_s`. A shortened final step may be used by the stage 6
-primitive, so the run never exceeds the configured maximum.
+Frames are an immutable tuple in non-decreasing time order. No Assist frames always
+use `ControlAction.NONE`. Warning Only frames select `NONE` for Safe/Caution and
+`WARNING` for Danger/Emergency. Selection is per-frame and non-latching.
 
-The loop has a deterministic upper bound derived from maximum time and step size.
-It stops when either condition is met:
+For identical physical parameters, No Assist and Warning Only have identical frame
+times, ego and lead trajectories, `RiskMetrics`, collision result, and stop time.
+Only strategy, frame action, Warning event, and warning summary time may differ;
+Warning never changes motion.
+
+The final retained frame is the first discrete frame with non-positive gap or the
+frame at `max_simulation_time_s`. The loop has a deterministic upper bound, and a
+shortened final step prevents exceeding maximum time:
 
 ```text
 frame.metrics.gap_m <= 0
 frame.time_s >= max_simulation_time_s
 ```
 
-A collision is observed only at a discrete frame end. The runner does not solve
-the exact contact time inside a step, clamp positions, or discard the collision
-frame.
+Collision time is the discrete frame-end observation. The runner does not solve
+exact contact time inside a step, clamp positions, or discard the collision frame.
 
 ## Events
 
-Events have stable, non-empty messages and are stored as an ordered tuple:
+Events have stable messages and form a time-ordered tuple:
 
 | Event | Time and condition |
 | --- | --- |
-| `lead_braking_started` | Once at `lead_brake_start_s` when that time enters the executed interval; at `0.0` when braking starts immediately |
-| `risk_level_changed` | At the newer frame time when adjacent frame risk levels differ |
-| `collision` | Once at the first discrete frame with `gap_m <= 0` |
-| `simulation_completed` | Always at the final frame time |
+| `lead_braking_started` | Once at `lead_brake_start_s` when that time enters the executed interval |
+| `risk_level_changed` | At the newer frame when adjacent risk levels differ |
+| `warning_triggered` | Once at the first frame whose action is `WARNING`; possibly `0.0` |
+| `collision` | Once at the first frame with `gap_m <= 0` |
+| `simulation_completed` | Always at the final frame |
 
-If collision occurs before brake start, no lead-braking event is emitted. At one
-frame time, risk change precedes collision, which precedes completion. No warning,
-partial-braking, or emergency-braking trigger event is generated under No Assist.
+No Assist emits no Warning event. Warning Only emits at most one even when its
+frame action later recovers and rises again. Events sharing a time use this order:
+
+```text
+LEAD_BRAKING_STARTED
+RISK_LEVEL_CHANGED
+WARNING_TRIGGERED
+COLLISION
+SIMULATION_COMPLETED
+```
+
+No partial-braking or emergency-braking trigger event is generated.
 
 ## Summary and result
 
-`SimulationSummary` is aggregated from all retained frames without rounding:
+`SimulationSummary` aggregates all retained frames without rounding:
 
 - `duration_s`: final frame time
 - `collided`: whether any frame has a non-positive gap
 - `minimum_gap_m`: smallest gap across all frames
-- `minimum_ttc_s`: smallest applicable TTC, or `None` when every TTC is `None`
+- `minimum_ttc_s`: smallest applicable TTC, or `None` if all are `None`
 - `final_gap_m`: final frame gap
-- `warning_trigger_time_s`: `None`
-- `aeb_trigger_time_s`: `None`
+- `warning_trigger_time_s`: first Warning event time for Warning Only, otherwise
+  `None`
+- `aeb_trigger_time_s`: always `None`
 
-The returned `SimulationResult` carries schema version `1.0`, the original
-immutable scenario, frame and event tuples, and the summary. Identical inputs and
-thresholds produce identical results. The runner performs no file export and does
-not use wall-clock time or randomness.
+The result carries schema version `1.0`, the immutable input scenario, frame and
+event tuples, and the summary. Identical inputs and thresholds produce identical
+results. No files are exported, and wall-clock time and randomness are unused.
 
 ## Current limits
 
-This is a discrete, one-dimensional point-vehicle research simulation. It does not
-provide exact continuous collision timing, Warning Only, AEB, ACC, an API, or a
-frontend workflow. It is not safety certified and must not control a real vehicle.
+This discrete point-vehicle simulation does not provide exact continuous collision
+timing, AEB, ACC, an API, or a frontend workflow. Warning is not a real vehicle
+command or safety guarantee. The project is not safety certified and must not
+control a real vehicle.

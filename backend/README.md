@@ -2,14 +2,12 @@
 
 This directory contains the minimal FastAPI application and the pure Python domain
 contracts for DriveGuard Lab. The API exposes only `GET /health`. The simulation
-package provides deterministic, single-vehicle, single-step state advancement but
-does not implement a scenario runner. Independent kinematic metric functions,
-heuristic risk classification, point-vehicle collision-state checking, and
-`RiskMetrics` assembly are available. A No Assist lead-braking scenario can be
-initialized and advanced by one time step, including a brake-start boundary inside
-that step. The complete No Assist runner returns ordered frame and basic event
-tuples, an aggregate summary, and a versioned `SimulationResult`. No
-assisted-driving strategy, Warning Only behavior, or AEB behavior is implemented.
+package provides deterministic vehicle advancement, metrics, heuristic risk
+classification, and point-vehicle collision-state checking. Lead-braking scenarios
+can be initialized, advanced one step, or run to completion under No Assist and
+Warning Only. The runner returns ordered frame and event tuples, an aggregate
+summary, and a versioned `SimulationResult`. Warning is non-braking and does not
+change trajectories. AEB is not implemented.
 
 ## Local setup
 

@@ -20,6 +20,7 @@ from .scenarios import (
     advance_lead_braking_scenario_step,
     initialize_lead_braking_scenario,
 )
+from .strategies import select_warning_only_action
 
 __all__ = (
     "DEFAULT_RISK_THRESHOLDS",
@@ -36,4 +37,5 @@ __all__ = (
     "is_collision",
     "initialize_lead_braking_scenario",
     "run_lead_braking_scenario",
+    "select_warning_only_action",
 )

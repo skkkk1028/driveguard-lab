@@ -1,9 +1,10 @@
-"""Complete deterministic runner for the No Assist lead-braking scenario."""
+"""Complete deterministic runner for supported lead-braking strategies."""
 
 from math import ceil
 
 from app.domain import (
     SIMULATION_SCHEMA_VERSION,
+    ControlAction,
     DrivingStrategy,
     LeadVehicleBrakingScenario,
     SimulationEvent,
@@ -20,6 +21,7 @@ from .scenarios import (
 )
 
 _LEAD_BRAKING_STARTED_MESSAGE = "Lead vehicle braking started."
+_WARNING_TRIGGERED_MESSAGE = "Warning triggered."
 _COLLISION_MESSAGE = "Point-vehicle collision state reached."
 _SIMULATION_COMPLETED_MESSAGE = "Simulation completed."
 
@@ -37,20 +39,31 @@ def _risk_change_event(
     )
 
 
-def _build_summary(frames: list[SimulationFrame]) -> SimulationSummary:
+def _build_summary(
+    frames: list[SimulationFrame],
+    events: list[SimulationEvent],
+) -> SimulationSummary:
     final_frame = frames[-1]
     applicable_ttc_s = [
         frame.metrics.ttc_s
         for frame in frames
         if frame.metrics.ttc_s is not None
     ]
+    warning_trigger_time_s = next(
+        (
+            event.time_s
+            for event in events
+            if event.event_type == SimulationEventType.WARNING_TRIGGERED
+        ),
+        None,
+    )
     return SimulationSummary(
         duration_s=final_frame.time_s,
         collided=any(frame.metrics.gap_m <= 0 for frame in frames),
         minimum_gap_m=min(frame.metrics.gap_m for frame in frames),
         minimum_ttc_s=min(applicable_ttc_s) if applicable_ttc_s else None,
         final_gap_m=final_frame.metrics.gap_m,
-        warning_trigger_time_s=None,
+        warning_trigger_time_s=warning_trigger_time_s,
         aeb_trigger_time_s=None,
     )
 
@@ -65,7 +78,7 @@ def _build_result(
         scenario=scenario,
         frames=tuple(frames),
         events=tuple(events),
-        summary=_build_summary(frames),
+        summary=_build_summary(frames, events),
     )
 
 
@@ -74,10 +87,16 @@ def run_lead_braking_scenario(
     *,
     thresholds: RiskThresholds = DEFAULT_RISK_THRESHOLDS,
 ) -> SimulationResult:
-    """Run one complete deterministic No Assist lead-braking scenario."""
+    """Run one complete deterministic supported lead-braking scenario."""
 
-    if scenario.strategy != DrivingStrategy.NO_ASSIST:
-        raise ValueError("scenario.strategy must be DrivingStrategy.NO_ASSIST")
+    if scenario.strategy not in (
+        DrivingStrategy.NO_ASSIST,
+        DrivingStrategy.WARNING_ONLY,
+    ):
+        raise ValueError(
+            "scenario.strategy must be DrivingStrategy.NO_ASSIST or "
+            "DrivingStrategy.WARNING_ONLY"
+        )
 
     initial_frame = initialize_lead_braking_scenario(
         scenario,
@@ -86,6 +105,7 @@ def run_lead_braking_scenario(
     frames = [initial_frame]
     events: list[SimulationEvent] = []
     lead_braking_event_emitted = False
+    warning_event_emitted = False
 
     if scenario.lead_brake_start_s == 0.0:
         events.append(
@@ -96,6 +116,16 @@ def run_lead_braking_scenario(
             )
         )
         lead_braking_event_emitted = True
+
+    if initial_frame.control_action == ControlAction.WARNING:
+        events.append(
+            SimulationEvent(
+                time_s=initial_frame.time_s,
+                event_type=SimulationEventType.WARNING_TRIGGERED,
+                message=_WARNING_TRIGGERED_MESSAGE,
+            )
+        )
+        warning_event_emitted = True
 
     if initial_frame.metrics.gap_m <= 0:
         events.append(
@@ -143,6 +173,19 @@ def run_lead_braking_scenario(
 
         if current_frame.metrics.risk_level != next_frame.metrics.risk_level:
             events.append(_risk_change_event(current_frame, next_frame))
+
+        if (
+            not warning_event_emitted
+            and next_frame.control_action == ControlAction.WARNING
+        ):
+            events.append(
+                SimulationEvent(
+                    time_s=next_frame.time_s,
+                    event_type=SimulationEventType.WARNING_TRIGGERED,
+                    message=_WARNING_TRIGGERED_MESSAGE,
+                )
+            )
+            warning_event_emitted = True
 
         collided = next_frame.metrics.gap_m <= 0
         if collided:

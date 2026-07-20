@@ -4,6 +4,7 @@ from app.domain import (
     ControlAction,
     DrivingStrategy,
     LeadVehicleBrakingScenario,
+    RiskLevel,
     SimulationFrame,
     VehicleState,
 )
@@ -14,11 +15,27 @@ from ..risk import (
     RiskThresholds,
     calculate_risk_metrics,
 )
+from ..strategies import select_warning_only_action
 
 
-def _require_no_assist(scenario: LeadVehicleBrakingScenario) -> None:
-    if scenario.strategy != DrivingStrategy.NO_ASSIST:
-        raise ValueError("scenario.strategy must be DrivingStrategy.NO_ASSIST")
+def _require_supported_strategy(scenario: LeadVehicleBrakingScenario) -> None:
+    if scenario.strategy not in (
+        DrivingStrategy.NO_ASSIST,
+        DrivingStrategy.WARNING_ONLY,
+    ):
+        raise ValueError(
+            "scenario.strategy must be DrivingStrategy.NO_ASSIST or "
+            "DrivingStrategy.WARNING_ONLY"
+        )
+
+
+def _select_control_action(
+    scenario: LeadVehicleBrakingScenario,
+    risk_level: RiskLevel,
+) -> ControlAction:
+    if scenario.strategy == DrivingStrategy.WARNING_ONLY:
+        return select_warning_only_action(risk_level)
+    return ControlAction.NONE
 
 
 def _lead_acceleration_at_time(
@@ -54,9 +71,9 @@ def initialize_lead_braking_scenario(
     *,
     thresholds: RiskThresholds = DEFAULT_RISK_THRESHOLDS,
 ) -> SimulationFrame:
-    """Create the immutable time-zero frame for a No Assist scenario."""
+    """Create the immutable time-zero frame for a supported scenario."""
 
-    _require_no_assist(scenario)
+    _require_supported_strategy(scenario)
     ego = VehicleState(
         position_m=0.0,
         speed_mps=scenario.ego_initial_speed_mps,
@@ -85,7 +102,7 @@ def initialize_lead_braking_scenario(
         ego=ego,
         lead=lead,
         metrics=metrics,
-        control_action=ControlAction.NONE,
+        control_action=_select_control_action(scenario, metrics.risk_level),
     )
 
 
@@ -95,9 +112,9 @@ def advance_lead_braking_scenario_step(
     *,
     thresholds: RiskThresholds = DEFAULT_RISK_THRESHOLDS,
 ) -> SimulationFrame:
-    """Advance a No Assist lead-braking scenario by exactly one time step."""
+    """Advance a supported lead-braking scenario by exactly one time step."""
 
-    _require_no_assist(scenario)
+    _require_supported_strategy(scenario)
     start_time_s = current_frame.time_s
     if start_time_s >= scenario.max_simulation_time_s:
         raise ValueError(
@@ -163,5 +180,8 @@ def advance_lead_braking_scenario_step(
         ego=next_ego,
         lead=next_lead,
         metrics=next_metrics,
-        control_action=ControlAction.NONE,
+        control_action=_select_control_action(
+            scenario,
+            next_metrics.risk_level,
+        ),
     )

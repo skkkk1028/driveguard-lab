@@ -64,14 +64,25 @@
 - A complete runner must compose scenario initialization and single-step functions;
   it must not copy their motion, metric, or risk logic.
 - Full simulation loops must have a deterministic upper bound.
-- No Assist runs stop at the first collision frame or maximum simulation time and
-  retain that final frame.
+- No Assist and Warning Only runs stop at the first collision frame or maximum
+  simulation time and retain that final frame.
 - Collision event time is the discrete collision-frame time; do not infer an exact
   within-step collision instant.
 - Emit lead-braking start and collision events at most once per run.
-- At one time, order risk change before collision and completion.
+- At one time, order lead braking, risk change, warning, collision, then completion.
 - Every completed run emits `SIMULATION_COMPLETED` at its final frame time.
 - Aggregate summaries from all retained frames without rounding; ignore `None`
   values when finding minimum TTC.
 - Store result frames and events as immutable tuples.
 - No Assist runners must not emit assisted-control trigger events.
+- Warning Only maps only a preclassified `RiskLevel`; it must not recompute TTC,
+  THW, or risk.
+- Warning Only maps Safe/Caution to `NONE` and Danger/Emergency to `WARNING` on
+  every frame without action latching.
+- A Warning action must not alter ego acceleration, either vehicle trajectory,
+  metrics, collision outcome, or stop time.
+- Emit `WARNING_TRIGGERED` at most once at the first Warning frame; No Assist emits
+  none.
+- Derive `warning_trigger_time_s` from the first Warning event and keep AEB trigger
+  time `None` during stage 8.
+- Stage 8 must reject AEB and emit no partial- or emergency-braking trigger events.
