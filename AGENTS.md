@@ -64,7 +64,7 @@
 - A complete runner must compose scenario initialization and single-step functions;
   it must not copy their motion, metric, or risk logic.
 - Full simulation loops must have a deterministic upper bound.
-- No Assist and Warning Only runs stop at the first collision frame or maximum
+- All supported strategy runs stop at the first collision frame or maximum
   simulation time and retain that final frame.
 - Collision event time is the discrete collision-frame time; do not infer an exact
   within-step collision instant.
@@ -83,6 +83,13 @@
   metrics, collision outcome, or stop time.
 - Emit `WARNING_TRIGGERED` at most once at the first Warning frame; No Assist emits
   none.
-- Derive `warning_trigger_time_s` from the first Warning event and keep AEB trigger
-  time `None` during stage 8.
-- Stage 8 must reject AEB and emit no partial- or emergency-braking trigger events.
+- Derive `warning_trigger_time_s` from the first Warning event.
+- Baseline AEB maps Safe/Caution to `NONE`, Danger to `PARTIAL_BRAKING`, and
+  Emergency to `EMERGENCY_BRAKING` without latching.
+- An AEB action stored at time `t` applies to the following simulation interval.
+- Partial AEB braking uses exactly half the configured maximum braking magnitude;
+  emergency braking uses the full magnitude.
+- `ego_reaction_time_s` affects stopping-distance risk metrics, not AEB actuation
+  delay.
+- Emit each AEB braking trigger event at most once, derive `aeb_trigger_time_s`
+  from the first such event, and emit no Warning event for AEB.

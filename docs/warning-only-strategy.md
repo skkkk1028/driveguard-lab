@@ -38,5 +38,6 @@ later returns to `NONE` and then becomes `WARNING` again.
 
 The mapping and its upstream risk levels are DriveGuard Lab teaching and
 simulation heuristics. They are not an industry warning standard, a real driver
-notification system, a braking command, or a safety guarantee. AEB remains
-unimplemented. This strategy must not be used to control a real vehicle.
+notification system, a braking command, or a safety guarantee. Baseline AEB is a
+separate simulation strategy. Neither strategy may be used to control a real
+vehicle.

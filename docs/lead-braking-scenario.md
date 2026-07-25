@@ -2,8 +2,8 @@
 
 Stage 6 provides the minimum deterministic execution unit for a lead-vehicle
 emergency-braking experiment: create the time-zero frame and advance an existing
-frame by one time step. It supports `DrivingStrategy.NO_ASSIST` and
-`DrivingStrategy.WARNING_ONLY`; AEB is rejected rather than silently ignored.
+frame by one time step. It supports `DrivingStrategy.NO_ASSIST`,
+`DrivingStrategy.WARNING_ONLY`, and `DrivingStrategy.AEB`.
 
 ## Initial frame
 
@@ -17,8 +17,8 @@ The initial frame belongs to `t = 0.0 s`. Ego acceleration is `0.0 m/s²`. Lead
 braking configuration is a positive magnitude, while the applied acceleration is
 its negative. If braking starts at zero and the lead is moving, the initial lead
 acceleration is the negative braking value. A stopped lead retains zero
-acceleration. Initial risk metrics are computed before selecting `NONE` for No
-Assist or the per-frame Warning Only action.
+acceleration. Initial risk metrics are computed before selecting the initial
+action for the configured strategy.
 
 ## Frame and step time
 
@@ -30,10 +30,13 @@ The normal effective step is `simulation_step_s`. If less time remains before
 `max_simulation_time_s`, the final step is shortened to land exactly on that
 maximum. A frame already at or beyond the maximum cannot be advanced.
 
-Under both supported strategies, ego always advances with zero applied
+Under No Assist and Warning Only, ego always advances with zero applied
 acceleration, regardless of risk level, old acceleration, or old control action.
-Warning Only selects its action after end-state metrics are calculated and never
-changes this motion. The lead follows these exact time rules:
+Under AEB, the action stored on the current frame applies to the following
+simulation interval: `NONE` uses zero acceleration, `PARTIAL_BRAKING` uses 50% of
+the configured maximum braking magnitude, and `EMERGENCY_BRAKING` uses the full
+magnitude. The ending risk selects the action stored on the returned frame; motion
+is never changed retroactively. The lead follows these exact time rules:
 
 - If the step ends before braking starts, it coasts for the whole step.
 - If the step starts at or after braking starts, braking applies for the whole
@@ -71,7 +74,7 @@ locate an exact collision time, truncate the step, emit events, create a summary
 or stop a later run. It does not run a complete loop or assemble a
 `SimulationResult`.
 
-AEB, ACC, and real-vehicle control are not implemented. Warning Only is a
-non-braking simulation marker, not a real driver-warning system. This model is for
-software learning and simulation experiments only and must not control a real
-vehicle.
+ACC and real-vehicle control are not implemented. Warning Only is a non-braking
+simulation marker, and baseline AEB is a simplified constant-deceleration strategy.
+This model is for software learning and simulation experiments only and must not
+control a real vehicle.

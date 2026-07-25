@@ -35,25 +35,28 @@ Implemented:
 - Basic Point-Vehicle Collision State using the `gap_m <= 0` boundary
 - RiskMetrics Assembly from the existing metric functions and classifier
 - Lead Braking Scenario Initialization for the time-zero frame
-- Single Scenario Step for No Assist and Warning Only
+- Single Scenario Step for No Assist, Warning Only, and baseline AEB
 - Sub-step Handling at Brake Start Boundary
 - SimulationFrame Assembly from end-of-step states and metrics
-- Bounded No Assist/Warning Only Simulation Loop composed from scenario steps
+- Bounded simulation loop for all three strategies, composed from scenario steps
 - Stateless Warning Only mapping from classified risk to `NONE` or `WARNING`
+- Stateless baseline AEB mapping to no, partial, or emergency braking
+- Current-frame AEB action application during the following simulation interval
+- First partial- and emergency-braking events and AEB trigger summary time
 - Basic Simulation Events including the first Warning action
 - Simulation Summary aggregation across retained frames
 - SimulationResult Assembly with schema version, frame tuple, and event tuple
-- Physical trajectory and risk-metric equivalence between supported strategies
+- Physical trajectory and risk-metric equivalence between No Assist and Warning Only
 
 Not implemented:
 
-- AEB Strategy
 - ACC
 - API Simulation Endpoint
 - API or frontend simulation features
 
-The runner supports No Assist and a non-braking Warning Only action while rejecting
-AEB. Warning does not alter vehicle motion, and event times remain discrete frame
+The runner supports No Assist, a non-braking Warning Only action, and baseline AEB.
+Warning does not alter vehicle motion. AEB uses 50% of configured maximum braking
+at Danger and 100% at Emergency. All event times remain discrete frame
 observations.
 
 ## Boundaries and constraints

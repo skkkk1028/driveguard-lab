@@ -12,7 +12,7 @@ Only one explicitly requested phase is implemented at a time.
 | 6 | Lead-vehicle emergency-braking scenario initialization and single-step advancement | Complete |
 | 7 | Complete deterministic No Assist runner, events, summary, and result | Complete |
 | 8 | Warning Only strategy | Complete |
-| 9 | Baseline AEB strategy | Not started |
+| 9 | Baseline AEB strategy | Complete |
 | 10 | Strategy evaluation and regression scenarios | Not started |
 | 11 | FastAPI simulation endpoints | Not started |
 | 12 | Dashboard configuration workflow | Not started |

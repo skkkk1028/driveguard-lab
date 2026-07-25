@@ -148,11 +148,29 @@ def test_initialized_frame_is_immutable() -> None:
         setattr(frame, field_name, 1.0)
 
 
-def test_initialize_rejects_aeb_strategy() -> None:
-    with pytest.raises(ValueError, match="strategy"):
-        initialize_lead_braking_scenario(
-            _scenario(strategy=DrivingStrategy.AEB)
-        )
+@pytest.mark.parametrize(
+    ("lead_initial_speed_mps", "initial_gap_m", "expected_action"),
+    [
+        (20.0, 50.0, ControlAction.NONE),
+        (20.0, 40.0, ControlAction.NONE),
+        (20.0, 15.0, ControlAction.PARTIAL_BRAKING),
+        (0.0, 20.0, ControlAction.EMERGENCY_BRAKING),
+    ],
+)
+def test_aeb_initial_action_uses_initial_risk_level(
+    lead_initial_speed_mps: float,
+    initial_gap_m: float,
+    expected_action: ControlAction,
+) -> None:
+    scenario = _scenario(
+        lead_initial_speed_mps=lead_initial_speed_mps,
+        initial_gap_m=initial_gap_m,
+        strategy=DrivingStrategy.AEB,
+    )
+
+    frame = initialize_lead_braking_scenario(scenario)
+
+    assert frame.control_action is expected_action
 
 
 @pytest.mark.parametrize(
@@ -473,7 +491,30 @@ def test_step_rejects_time_at_or_after_maximum(time_s: float) -> None:
         advance_lead_braking_scenario_step(current, scenario)
 
 
-def test_step_rejects_aeb_strategy() -> None:
+def test_aeb_current_frame_action_controls_next_interval() -> None:
+    scenario = _scenario(
+        lead_brake_start_s=5.0,
+        ego_max_braking_deceleration_mps2=8.0,
+        strategy=DrivingStrategy.AEB,
+    )
+    current = _frame(
+        scenario,
+        time_s=0.0,
+        ego_position_m=0.0,
+        ego_speed_mps=20.0,
+        lead_position_m=50.0,
+        lead_speed_mps=20.0,
+        control_action=ControlAction.PARTIAL_BRAKING,
+    )
+
+    result = advance_lead_braking_scenario_step(current, scenario)
+
+    assert result.time_s == 0.5
+    assert result.ego == VehicleState(9.5, 18.0, -4.0)
+    assert result.control_action is ControlAction.NONE
+
+
+def test_aeb_rejects_warning_as_current_frame_action() -> None:
     scenario = _scenario(strategy=DrivingStrategy.AEB)
     current = _frame(
         scenario,
@@ -482,10 +523,33 @@ def test_step_rejects_aeb_strategy() -> None:
         ego_speed_mps=20.0,
         lead_position_m=50.0,
         lead_speed_mps=20.0,
+        control_action=ControlAction.WARNING,
     )
 
-    with pytest.raises(ValueError, match="strategy"):
+    with pytest.raises(ValueError, match="control_action"):
         advance_lead_braking_scenario_step(current, scenario)
+
+
+def test_aeb_emergency_braking_stops_without_reversing() -> None:
+    scenario = _scenario(
+        lead_brake_start_s=5.0,
+        ego_max_braking_deceleration_mps2=8.0,
+        simulation_step_s=1.0,
+        strategy=DrivingStrategy.AEB,
+    )
+    current = _frame(
+        scenario,
+        time_s=0.0,
+        ego_position_m=0.0,
+        ego_speed_mps=2.0,
+        lead_position_m=20.0,
+        lead_speed_mps=0.0,
+        control_action=ControlAction.EMERGENCY_BRAKING,
+    )
+
+    result = advance_lead_braking_scenario_step(current, scenario)
+
+    assert result.ego == VehicleState(0.25, 0.0, 0.0)
 
 
 def test_warning_only_action_recovers_without_latching_or_braking() -> None:

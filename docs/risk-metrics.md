@@ -105,7 +105,6 @@ NaN and positive or negative infinity are prohibited in both inputs and results.
 The functions do not return sentinel values and do not round for UI display.
 
 Risk thresholds and heuristic classification are implemented outside these
-formulas, together with a Boolean point-vehicle collision-state check. Collision
-events, AEB, and complete scenario execution remain unimplemented. These values
-are simulation research quantities, not safety-certified vehicle data, and must
-not be used for real-vehicle control.
+formulas, together with point-vehicle collision state, complete scenario runners,
+and baseline AEB. These values are simulation research quantities, not
+safety-certified vehicle data, and must not be used for real-vehicle control.

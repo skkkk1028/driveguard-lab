@@ -22,8 +22,21 @@ from .scenarios import (
 
 _LEAD_BRAKING_STARTED_MESSAGE = "Lead vehicle braking started."
 _WARNING_TRIGGERED_MESSAGE = "Warning triggered."
+_PARTIAL_BRAKING_TRIGGERED_MESSAGE = "Partial braking triggered."
+_EMERGENCY_BRAKING_TRIGGERED_MESSAGE = "Emergency braking triggered."
 _COLLISION_MESSAGE = "Point-vehicle collision state reached."
 _SIMULATION_COMPLETED_MESSAGE = "Simulation completed."
+
+_AEB_EVENT_DETAILS = {
+    ControlAction.PARTIAL_BRAKING: (
+        SimulationEventType.PARTIAL_BRAKING_TRIGGERED,
+        _PARTIAL_BRAKING_TRIGGERED_MESSAGE,
+    ),
+    ControlAction.EMERGENCY_BRAKING: (
+        SimulationEventType.EMERGENCY_BRAKING_TRIGGERED,
+        _EMERGENCY_BRAKING_TRIGGERED_MESSAGE,
+    ),
+}
 
 
 def _risk_change_event(
@@ -37,6 +50,26 @@ def _risk_change_event(
         event_type=SimulationEventType.RISK_LEVEL_CHANGED,
         message=f"Risk level changed from {previous_level} to {current_level}.",
     )
+
+
+def _append_first_aeb_action_event(
+    frame: SimulationFrame,
+    events: list[SimulationEvent],
+    emitted_actions: set[ControlAction],
+) -> None:
+    details = _AEB_EVENT_DETAILS.get(frame.control_action)
+    if details is None or frame.control_action in emitted_actions:
+        return
+
+    event_type, message = details
+    events.append(
+        SimulationEvent(
+            time_s=frame.time_s,
+            event_type=event_type,
+            message=message,
+        )
+    )
+    emitted_actions.add(frame.control_action)
 
 
 def _build_summary(
@@ -57,6 +90,18 @@ def _build_summary(
         ),
         None,
     )
+    aeb_trigger_time_s = next(
+        (
+            event.time_s
+            for event in events
+            if event.event_type
+            in (
+                SimulationEventType.PARTIAL_BRAKING_TRIGGERED,
+                SimulationEventType.EMERGENCY_BRAKING_TRIGGERED,
+            )
+        ),
+        None,
+    )
     return SimulationSummary(
         duration_s=final_frame.time_s,
         collided=any(frame.metrics.gap_m <= 0 for frame in frames),
@@ -64,7 +109,7 @@ def _build_summary(
         minimum_ttc_s=min(applicable_ttc_s) if applicable_ttc_s else None,
         final_gap_m=final_frame.metrics.gap_m,
         warning_trigger_time_s=warning_trigger_time_s,
-        aeb_trigger_time_s=None,
+        aeb_trigger_time_s=aeb_trigger_time_s,
     )
 
 
@@ -92,10 +137,11 @@ def run_lead_braking_scenario(
     if scenario.strategy not in (
         DrivingStrategy.NO_ASSIST,
         DrivingStrategy.WARNING_ONLY,
+        DrivingStrategy.AEB,
     ):
         raise ValueError(
-            "scenario.strategy must be DrivingStrategy.NO_ASSIST or "
-            "DrivingStrategy.WARNING_ONLY"
+            "scenario.strategy must be DrivingStrategy.NO_ASSIST, "
+            "DrivingStrategy.WARNING_ONLY, or DrivingStrategy.AEB"
         )
 
     initial_frame = initialize_lead_braking_scenario(
@@ -106,6 +152,7 @@ def run_lead_braking_scenario(
     events: list[SimulationEvent] = []
     lead_braking_event_emitted = False
     warning_event_emitted = False
+    emitted_aeb_actions: set[ControlAction] = set()
 
     if scenario.lead_brake_start_s == 0.0:
         events.append(
@@ -126,6 +173,12 @@ def run_lead_braking_scenario(
             )
         )
         warning_event_emitted = True
+
+    _append_first_aeb_action_event(
+        initial_frame,
+        events,
+        emitted_aeb_actions,
+    )
 
     if initial_frame.metrics.gap_m <= 0:
         events.append(
@@ -186,6 +239,12 @@ def run_lead_braking_scenario(
                 )
             )
             warning_event_emitted = True
+
+        _append_first_aeb_action_event(
+            next_frame,
+            events,
+            emitted_aeb_actions,
+        )
 
         collided = next_frame.metrics.gap_m <= 0
         if collided:

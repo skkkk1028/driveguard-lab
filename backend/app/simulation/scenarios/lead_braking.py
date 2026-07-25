@@ -15,17 +15,22 @@ from ..risk import (
     RiskThresholds,
     calculate_risk_metrics,
 )
-from ..strategies import select_warning_only_action
+from ..strategies import (
+    calculate_aeb_acceleration_mps2,
+    select_aeb_action,
+    select_warning_only_action,
+)
 
 
 def _require_supported_strategy(scenario: LeadVehicleBrakingScenario) -> None:
     if scenario.strategy not in (
         DrivingStrategy.NO_ASSIST,
         DrivingStrategy.WARNING_ONLY,
+        DrivingStrategy.AEB,
     ):
         raise ValueError(
-            "scenario.strategy must be DrivingStrategy.NO_ASSIST or "
-            "DrivingStrategy.WARNING_ONLY"
+            "scenario.strategy must be DrivingStrategy.NO_ASSIST, "
+            "DrivingStrategy.WARNING_ONLY, or DrivingStrategy.AEB"
         )
 
 
@@ -33,9 +38,23 @@ def _select_control_action(
     scenario: LeadVehicleBrakingScenario,
     risk_level: RiskLevel,
 ) -> ControlAction:
+    if scenario.strategy == DrivingStrategy.AEB:
+        return select_aeb_action(risk_level)
     if scenario.strategy == DrivingStrategy.WARNING_ONLY:
         return select_warning_only_action(risk_level)
     return ControlAction.NONE
+
+
+def _select_ego_acceleration_mps2(
+    current_frame: SimulationFrame,
+    scenario: LeadVehicleBrakingScenario,
+) -> float:
+    if scenario.strategy != DrivingStrategy.AEB:
+        return 0.0
+    return calculate_aeb_acceleration_mps2(
+        current_frame.control_action,
+        scenario.ego_max_braking_deceleration_mps2,
+    )
 
 
 def _lead_acceleration_at_time(
@@ -130,7 +149,10 @@ def advance_lead_braking_scenario_step(
 
     next_ego = advance_vehicle(
         current_frame.ego,
-        applied_acceleration_mps2=0.0,
+        applied_acceleration_mps2=_select_ego_acceleration_mps2(
+            current_frame,
+            scenario,
+        ),
         dt_s=effective_dt_s,
     )
 

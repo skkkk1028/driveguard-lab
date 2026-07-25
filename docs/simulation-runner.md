@@ -1,8 +1,8 @@
 # Simulation Runner
 
-The deterministic lead-braking runner supports `DrivingStrategy.NO_ASSIST` and
-`DrivingStrategy.WARNING_ONLY`. It composes the existing initializer and
-single-step primitive into a complete `SimulationResult`; AEB is rejected.
+The deterministic lead-braking runner supports `DrivingStrategy.NO_ASSIST`,
+`DrivingStrategy.WARNING_ONLY`, and `DrivingStrategy.AEB`. It composes the existing
+initializer and single-step primitive into a complete `SimulationResult`.
 
 ## Run flow and frames
 
@@ -14,6 +14,12 @@ classification.
 Frames are an immutable tuple in non-decreasing time order. No Assist frames always
 use `ControlAction.NONE`. Warning Only frames select `NONE` for Safe/Caution and
 `WARNING` for Danger/Emergency. Selection is per-frame and non-latching.
+
+AEB frames select `NONE` for Safe/Caution, `PARTIAL_BRAKING` for Danger, and
+`EMERGENCY_BRAKING` for Emergency. An action on a frame applies to the following
+simulation interval. Partial braking uses 50% of the configured maximum braking
+magnitude and emergency braking uses 100%. Selection is per-frame and non-latching,
+and `ego_reaction_time_s` does not delay automatic braking.
 
 For identical physical parameters, No Assist and Warning Only have identical frame
 times, ego and lead trajectories, `RiskMetrics`, collision result, and stop time.
@@ -41,6 +47,8 @@ Events have stable messages and form a time-ordered tuple:
 | `lead_braking_started` | Once at `lead_brake_start_s` when that time enters the executed interval |
 | `risk_level_changed` | At the newer frame when adjacent risk levels differ |
 | `warning_triggered` | Once at the first frame whose action is `WARNING`; possibly `0.0` |
+| `partial_braking_triggered` | Once at the first frame whose action is `PARTIAL_BRAKING` |
+| `emergency_braking_triggered` | Once at the first frame whose action is `EMERGENCY_BRAKING` |
 | `collision` | Once at the first frame with `gap_m <= 0` |
 | `simulation_completed` | Always at the final frame |
 
@@ -51,11 +59,15 @@ frame action later recovers and rises again. Events sharing a time use this orde
 LEAD_BRAKING_STARTED
 RISK_LEVEL_CHANGED
 WARNING_TRIGGERED
+PARTIAL_BRAKING_TRIGGERED
+EMERGENCY_BRAKING_TRIGGERED
 COLLISION
 SIMULATION_COMPLETED
 ```
 
-No partial-braking or emergency-braking trigger event is generated.
+Warning Only generates no braking trigger event. AEB generates no Warning event.
+If AEB later enters the other braking level, that level's first trigger event is
+still emitted, while neither event type repeats.
 
 ## Summary and result
 
@@ -68,7 +80,8 @@ No partial-braking or emergency-braking trigger event is generated.
 - `final_gap_m`: final frame gap
 - `warning_trigger_time_s`: first Warning event time for Warning Only, otherwise
   `None`
-- `aeb_trigger_time_s`: always `None`
+- `aeb_trigger_time_s`: first partial- or emergency-braking event time for AEB,
+  otherwise `None`
 
 The result carries schema version `1.0`, the immutable input scenario, frame and
 event tuples, and the summary. Identical inputs and thresholds produce identical
@@ -77,6 +90,6 @@ results. No files are exported, and wall-clock time and randomness are unused.
 ## Current limits
 
 This discrete point-vehicle simulation does not provide exact continuous collision
-timing, AEB, ACC, an API, or a frontend workflow. Warning is not a real vehicle
-command or safety guarantee. The project is not safety certified and must not
-control a real vehicle.
+timing, ACC, an API, or a frontend workflow. Warning and baseline AEB are not real
+vehicle commands or safety guarantees. The project is not safety certified and
+must not control a real vehicle.

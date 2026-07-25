@@ -20,13 +20,20 @@ from .scenarios import (
     advance_lead_braking_scenario_step,
     initialize_lead_braking_scenario,
 )
-from .strategies import select_warning_only_action
+from .strategies import (
+    AEB_PARTIAL_BRAKING_FRACTION,
+    calculate_aeb_acceleration_mps2,
+    select_aeb_action,
+    select_warning_only_action,
+)
 
 __all__ = (
+    "AEB_PARTIAL_BRAKING_FRACTION",
     "DEFAULT_RISK_THRESHOLDS",
     "RiskThresholds",
     "advance_lead_braking_scenario_step",
     "advance_vehicle",
+    "calculate_aeb_acceleration_mps2",
     "calculate_ego_stopping_distance_m",
     "calculate_gap_m",
     "calculate_relative_speed_mps",
@@ -37,5 +44,6 @@ __all__ = (
     "is_collision",
     "initialize_lead_braking_scenario",
     "run_lead_braking_scenario",
+    "select_aeb_action",
     "select_warning_only_action",
 )
