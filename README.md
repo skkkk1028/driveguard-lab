@@ -4,17 +4,17 @@ DriveGuard Lab 是一个面向智能驾驶危险场景的可重复仿真与碰�
 
 ## 当前开发状态
 
-阶段 1 至阶段 12 已完成工程基线、领域数据契约、基础运动与风险计算，No Assist、
+阶段 1 至阶段 13 已完成工程基线、领域数据契约、基础运动与风险计算，No Assist、
 Warning Only 和基线 AEB 的确定性运行，以及三策略评估和六个标准回归场景。评估结果
 包含碰撞、间距、触发和干预指标，但不生成主观策略排名。上述能力现已通过版本化
-FastAPI 端点提供；中文 Dashboard 已支持配置并运行单策略仿真或三策略评估，以及
-查看紧凑结果摘要。
+FastAPI 端点提供；中文 Dashboard 已支持配置并运行单策略仿真或三策略评估、查看
+紧凑摘要，并对完整结果进行逐帧播放、事件跳转和联动 SVG 曲线检查。
 
 ## v1.0 目标范围
 
 v1.0 计划通过项目内部的一维确定性纵向仿真引擎，研究前车急刹场景中的 TTC、
 THW、制动距离、碰撞风险和 AEB 控制策略。当前已完成核心领域功能、标准策略评估、
-仿真 API 和网页配置工作流；后续阶段将增加逐帧播放和结果可视化。
+仿真 API、网页配置工作流、离散逐帧播放和结果可视化。
 
 ## 技术栈
 
@@ -63,7 +63,8 @@ npm.cmd run dev
 Dashboard 默认请求 `http://127.0.0.1:8000`。如需使用其他后端地址，可在
 `frontend/.env.local` 中设置 `VITE_API_BASE_URL`。标准回归场景在本阶段只作为配置
 预设，不会从页面运行完整回归套件。详细工作流见
-[`docs/dashboard-workflow.md`](docs/dashboard-workflow.md)。
+[`docs/dashboard-workflow.md`](docs/dashboard-workflow.md)，播放语义见
+[`docs/simulation-playback.md`](docs/simulation-playback.md)。
 
 如果系统允许执行 `npm.ps1`，也可以使用 `npm` 替代 `npm.cmd`。项目不会要求修改
 PowerShell 的全局执行策略。
@@ -101,8 +102,9 @@ npm.cmd run build
 当前已有简化的运动推进、风险指标和分类、点车辆碰撞状态，三种策略完整运行器，以及
 可序列化的跨策略评估和标准回归套件。碰撞、首次 Warning 和首次 AEB 时间均为离散
 帧时刻。现有 API 可运行单策略仿真、三策略评估和标准回归套件；Dashboard 可配置
-和运行前两类操作并展示摘要。尚无 ACC 控制、逐帧播放、事件时间线、动态图表、
-数据库、WebSocket、SUMO、CARLA、TraCI 或 OpenSCENARIO 集成。
+和运行前两类操作，并展示摘要、离散帧播放、当前策略事件以及联动 SVG 图表。尚无
+ACC 控制、结果持久化或导出、实时流式仿真、数据库、WebSocket、SUMO、CARLA、
+TraCI 或 OpenSCENARIO 集成。
 
 ## 许可证
 

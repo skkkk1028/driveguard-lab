@@ -16,7 +16,7 @@ Only one explicitly requested phase is implemented at a time.
 | 10 | Strategy evaluation and regression scenarios | Complete |
 | 11 | FastAPI simulation endpoints | Complete |
 | 12 | Dashboard configuration workflow | Complete |
-| 13 | Simulation playback and result visualization | Not started |
+| 13 | Simulation playback and result visualization | Complete |
 | 14 | SUMO adapter exploration | Not started |
 | 15 | Integration hardening and expanded validation | Not started |
 | 16 | v1.0 documentation and release readiness | Not started |

@@ -8,11 +8,16 @@ Lab. The Chinese research interface supports:
 - comparing the three strategies without ranking them;
 - loading the six regression scenarios as configuration presets;
 - optionally overriding all five risk thresholds; and
-- reviewing a compact simulation or evaluation summary.
+- reviewing a compact simulation or evaluation summary;
+- playing retained frames at four wall-clock speeds and jumping to events; and
+- inspecting the point-vehicle scene, exact frame values, categorical bands, and
+  linked native SVG charts.
 
-Full frame playback, event timelines, charts, vehicle animation, and export are
-reserved for later phases. Regression scenarios are presets only; this frontend
-does not run the complete regression suite.
+Evaluation playback uses a shared time union and can switch among all three
+strategies. Playback selects discrete API frames and never interpolates physical
+state. Regression scenarios remain presets only; this frontend does not run the
+complete regression suite. Persistence, export, streaming, maps, and real vehicle
+interfaces are reserved for later work.
 
 ## Backend connection
 
@@ -42,4 +47,6 @@ On systems where PowerShell permits `npm.ps1`, `npm` can be used in place of
 `npm.cmd`.
 
 See [`../docs/dashboard-workflow.md`](../docs/dashboard-workflow.md) for the
-configuration, validation, request, and result-display behavior.
+configuration and request behavior, and
+[`../docs/simulation-playback.md`](../docs/simulation-playback.md) for playback
+and visualization semantics.

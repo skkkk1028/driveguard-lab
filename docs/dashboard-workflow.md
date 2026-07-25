@@ -1,4 +1,4 @@
-# Dashboard Configuration Workflow
+# Dashboard Configuration and Result Workflow
 
 Phase 12 replaces the static frontend page with a Chinese research Dashboard for
 configuring and running the existing deterministic simulation API. It is an input
@@ -72,5 +72,11 @@ score, ranking, or best-strategy conclusion.
 
 The complete API response is retained in frontend state, and displayed physical
 values come directly from that response without recomputation or rounding. Phase
-12 does not provide frame playback, playback controls, event timelines, dynamic
-charts, vehicle animation, persistence, or export; those remain later-phase work.
+13 expands a successful result below the configuration and summary into a full-
+width discrete playback workbench. A configuration change still removes both the
+old summary and workbench so they cannot be confused with current inputs.
+
+Playback controls, shared evaluation time semantics, event seeking, strategy
+selection, and SVG views are specified in
+[`simulation-playback.md`](simulation-playback.md). Persistence, export, streaming,
+maps, and real vehicle interfaces are not part of this workflow.

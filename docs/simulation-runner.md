@@ -90,6 +90,7 @@ results. No files are exported, and wall-clock time and randomness are unused.
 ## Current limits
 
 This discrete point-vehicle simulation does not provide exact continuous collision
-timing, ACC, an API, or a frontend workflow. Warning and baseline AEB are not real
-vehicle commands or safety guarantees. The project is not safety certified and
-must not control a real vehicle.
+timing or ACC. Its API and frontend playback expose completed discrete results but
+do not alter runner semantics or interpolate within a step. Warning and baseline
+AEB are not real vehicle commands or safety guarantees. The project is not safety
+certified and must not control a real vehicle.

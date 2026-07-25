@@ -14,7 +14,7 @@ Vehicle Dynamics → Risk Metrics → Driving Strategy
         ↓
 Immutable Simulation Results
         ↓ JSON
-React Dashboard summary
+React Dashboard summary + discrete playback workbench
 ```
 
 ## Current implementation status
@@ -59,11 +59,17 @@ Implemented:
   validation
 - Compact simulation and evaluation summaries backed by retained complete API
   responses
+- RequestAnimationFrame playback over retained frames with binary time lookup
+- Shared evaluation time cursor with fixed-order strategy selection and final-frame
+  holding for shorter results
+- Point-vehicle road schematic, exact current-frame inspection, active-strategy
+  events, and categorical risk/action bands
+- Memoized native SVG speed, gap/stopping-distance, and TTC/THW plots with actual
+  threshold references
 
 Not implemented:
 
 - ACC
-- Simulation playback, event timelines, charts, or vehicle animation
 - Persistent or asynchronous simulation execution
 
 The runner supports No Assist, a non-braking Warning Only action, and baseline AEB.
@@ -86,7 +92,8 @@ regression execution returns evaluation data; pytest owns pass/fail expectations
 - All internal physical quantities use SI units.
 - Simulations will use a fixed time step to support deterministic reproduction.
 - The frontend is responsible only for configuration and result presentation;
-  later phases may add playback without moving simulation behavior into React.
+  playback selects retained frames and must not move simulation behavior into
+  React.
 - SUMO may be introduced later as an adapter; it will not be the only execution
   environment for the core algorithms.
 
@@ -96,5 +103,6 @@ remain the response contracts and retain schema version `1.0`. The React
 Dashboard calls the single-simulation and three-strategy-evaluation endpoints and
 uses the regression catalog only to populate form presets. It may validate input
 before submission, but it does not duplicate motion, risk, strategy, or summary
-calculations. Complete responses remain in client state while this phase renders
-only compact summaries; frame playback and visualization remain phase 13 work.
+calculations. Complete responses remain in client state. The playback layer
+derives only time selection and SVG coordinates: it does not recalculate motion,
+risk, actions, events, summaries, or within-step collision state.

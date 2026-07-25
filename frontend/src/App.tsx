@@ -23,8 +23,10 @@ import {
   type ThresholdFormValues,
   validateForm,
 } from "./dashboard/form";
-import { ResultSummary, type DashboardResult } from "./dashboard/ResultSummary";
+import { ResultSummary } from "./dashboard/ResultSummary";
+import type { DashboardResult } from "./dashboard/result";
 import { ScenarioForm } from "./dashboard/ScenarioForm";
+import { PlaybackWorkbench } from "./playback/PlaybackWorkbench";
 
 const FORM_ERROR_KEYS = new Set<FormErrorKey>([
   ...Object.keys(DEFAULT_SCENARIO_VALUES),
@@ -79,6 +81,7 @@ function App() {
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [result, setResult] = useState<DashboardResult | null>(null);
+  const [resultRevision, setResultRevision] = useState(0);
   const scenarioEditedRef = useRef(false);
   const activeRunRef = useRef<AbortController | null>(null);
 
@@ -250,6 +253,7 @@ function App() {
         };
         const response = await api.runSimulation(request, controller.signal);
         setResult({ kind: "simulation", data: response });
+        setResultRevision((current) => current + 1);
       } else {
         const request: StrategyEvaluationRequest = {
           baseline_scenario: validation.data.scenario,
@@ -259,6 +263,7 @@ function App() {
         };
         const response = await api.evaluateStrategies(request, controller.signal);
         setResult({ kind: "evaluation", data: response });
+        setResultRevision((current) => current + 1);
       }
     } catch (error) {
       if (error instanceof DOMException && error.name === "AbortError") {
@@ -303,7 +308,7 @@ function App() {
 
       <section className="intro-panel" aria-labelledby="intro-heading">
         <div>
-          <p className="panel-kicker">Stage 12 · Configuration workflow</p>
+          <p className="panel-kicker">Stage 13 · Playback & visualization</p>
           <h2 id="intro-heading">配置一次可重复的前车急刹实验</h2>
           <p>
             使用同一组物理参数研究 No Assist、Warning Only 与基线 AEB。
@@ -364,7 +369,7 @@ function App() {
               <h2 id="empty-result-heading">结果摘要将在这里出现</h2>
               <p>
                 完成场景配置并运行后，可查看碰撞、Gap、TTC 与策略触发摘要。
-                阶段 13 将在此基础上增加逐帧播放与图表。
+                完整响应会在下方展开逐帧播放、事件跳转与联动曲线。
               </p>
             </section>
           )}
@@ -378,6 +383,7 @@ function App() {
           </aside>
         </aside>
       </div>
+      {result ? <PlaybackWorkbench key={resultRevision} result={result} /> : null}
     </main>
   );
 }

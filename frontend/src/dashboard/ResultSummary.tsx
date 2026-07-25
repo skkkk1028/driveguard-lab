@@ -1,15 +1,10 @@
-import { useEffect, useRef } from "react";
-
 import type {
   DrivingStrategy,
   SimulationRunResponse,
   StrategyEvaluation,
   StrategyOutcome,
 } from "../api/types";
-
-export type DashboardResult =
-  | { kind: "simulation"; data: SimulationRunResponse }
-  | { kind: "evaluation"; data: StrategyEvaluation };
+import type { DashboardResult } from "./result";
 
 const STRATEGY_LABELS: Record<DrivingStrategy, string> = {
   no_assist: "No Assist",
@@ -119,17 +114,12 @@ function EvaluationSummary({ data }: { data: StrategyEvaluation }) {
 }
 
 export function ResultSummary({ result }: { result: DashboardResult }) {
-  const headingRef = useRef<HTMLHeadingElement>(null);
-  useEffect(() => {
-    headingRef.current?.focus();
-  }, [result]);
-
   return (
     <section className="result-card" aria-labelledby="result-heading">
       <div className="result-heading-row">
         <div>
           <p className="panel-kicker">Run complete</p>
-          <h2 id="result-heading" ref={headingRef} tabIndex={-1}>
+          <h2 id="result-heading">
             {result.kind === "simulation" ? "单策略运行摘要" : "三策略评估摘要"}
           </h2>
         </div>
@@ -141,7 +131,7 @@ export function ResultSummary({ result }: { result: DashboardResult }) {
         <EvaluationSummary data={result.data} />
       )}
       <div className="phase-boundary-note">
-        完整响应已保留。本阶段不提供逐帧播放、事件时间轴或动态图表。
+        完整响应已加载到下方播放研究台；摘要数值仍直接来自 API。
       </div>
     </section>
   );

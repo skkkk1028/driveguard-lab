@@ -127,6 +127,18 @@
 - Clear a displayed result when its configuration changes, and block duplicate
   submissions while a request is active.
 - Do not recalculate or round API result values for Dashboard display.
-- Keep complete API responses in client state, but limit phase 12 presentation to
-  compact summaries; playback, event timelines, charts, animation, and export are
-  phase 13 or later work.
+- Keep complete API responses in client state; configuration changes must remove
+  both stale summaries and playback views.
+- Playback must select existing retained frames without interpolating physical
+  state or inferring within-step collision time.
+- At `1×`, playback advances by wall-clock simulation time and uses binary lookup;
+  update React state only when the selected retained frame changes.
+- Evaluation playback uses the sorted union of all strategy frame times and holds
+  an already-terminated strategy at its final frame.
+- Event seeking selects the first retained frame not earlier than the event time.
+- Keep chart coordinates as presentation-only values; textual physical values
+  must remain unrounded API values, and `null` metrics must render as line breaks.
+- Do not create one React DOM node per frame for large plots or categorical bands;
+  use memoized SVG paths.
+- Frontend playback must not add endpoints, duplicate simulation calculations,
+  score strategies, or imply a safety guarantee.

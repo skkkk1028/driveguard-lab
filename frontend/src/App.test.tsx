@@ -181,6 +181,7 @@ describe("Dashboard configuration workflow", () => {
     fireEvent.click(screen.getByRole("button", { name: "运行单策略仿真" }));
 
     expect(await screen.findByRole("heading", { name: "单策略运行摘要" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "仿真逐帧播放与结果可视化" })).toBeInTheDocument();
     expect(screen.getByText("未发生碰撞")).toBeInTheDocument();
     const request = JSON.parse(String(fetchMock.mock.calls[1][1]?.body));
     expect(fetchMock.mock.calls[1][0]).toBe(
@@ -343,7 +344,33 @@ describe("Dashboard configuration workflow", () => {
     fireEvent.change(screen.getByLabelText("初始间距"), { target: { value: "16" } });
 
     expect(screen.queryByRole("heading", { name: "单策略运行摘要" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "仿真逐帧播放与结果可视化" })).not.toBeInTheDocument();
     expect(screen.getByText("结果摘要将在这里出现")).toBeInTheDocument();
+  });
+
+  it("resets a newly completed playback to the first frame", async () => {
+    const replayResponse = simulationResponse();
+    replayResponse.result.frames.push({
+      ...replayResponse.result.frames[0],
+      time_s: 0.5,
+      ego: { ...replayResponse.result.frames[0].ego, position_m: 5 },
+      lead: { ...replayResponse.result.frames[0].lead, position_m: 19 },
+      metrics: { ...replayResponse.result.frames[0].metrics, gap_m: 14 },
+    });
+    fetchMock
+      .mockResolvedValueOnce(jsonResponse(replayResponse))
+      .mockResolvedValueOnce(jsonResponse(replayResponse));
+    render(<App />);
+    await screen.findByRole("option", { name: "AEB 避免碰撞" });
+    fireEvent.click(screen.getByRole("button", { name: "运行单策略仿真" }));
+    await screen.findByRole("heading", { name: "仿真逐帧播放与结果可视化" });
+    fireEvent.click(screen.getByRole("button", { name: "跳到末帧" }));
+    expect(screen.getByText("t = 0.5 s")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "运行单策略仿真" }));
+
+    await screen.findByRole("heading", { name: "仿真逐帧播放与结果可视化" });
+    expect(screen.getByText("t = 0 s")).toBeInTheDocument();
   });
 
   it("loads presets correctly under the development StrictMode effect cycle", async () => {
