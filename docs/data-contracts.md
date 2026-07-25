@@ -157,3 +157,25 @@ rejected. The serializer performs no file or network I/O.
 DriveGuard Lab's planned longitudinal model is a simplified one-dimensional
 simulation. These contracts do not represent real vehicle dynamics and are not a
 real-vehicle control or safety-certified interface.
+
+## Strategy evaluation contracts
+
+Stage 10 adds immutable, JSON-compatible evaluation containers without changing
+the existing simulation schema version or stable enum values.
+
+- `RiskThresholdSnapshot` records the five finite, positive, correctly ordered
+  thresholds actually used by an evaluation.
+- `StrategyOutcome` contains one complete `SimulationResult`, its discrete
+  collision time, final ego speed, and Warning/partial/emergency command durations.
+- `StrategyEvaluation` contains named No Assist, Warning Only, and AEB outcomes,
+  plus signed AEB-minus-No-Assist collision and gap comparisons. Its baseline must
+  use `DrivingStrategy.NO_ASSIST`.
+- `RegressionScenario` associates a stable ID and description with a No Assist
+  baseline. `RegressionCaseResult` and `RegressionSuiteResult` carry ordered batch
+  results and the threshold snapshot.
+
+Command duration sums only frame-to-frame intervals whose starting frame selects
+the action. A terminal-frame action has no following interval and contributes no
+duration. Evaluation contracts store supplied values and validate representation;
+the simulation evaluation layer performs calculations. No contract provides a
+composite score or a best-strategy judgment.

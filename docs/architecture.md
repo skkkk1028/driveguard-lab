@@ -47,6 +47,9 @@ Implemented:
 - Simulation Summary aggregation across retained frames
 - SimulationResult Assembly with schema version, frame tuple, and event tuple
 - Physical trajectory and risk-metric equivalence between No Assist and Warning Only
+- Serializable three-strategy evaluation with threshold snapshots and signed
+  AEB-to-baseline comparisons
+- Immutable six-scenario regression catalog and deterministic batch evaluation
 
 Not implemented:
 
@@ -58,6 +61,11 @@ The runner supports No Assist, a non-braking Warning Only action, and baseline A
 Warning does not alter vehicle motion. AEB uses 50% of configured maximum braking
 at Danger and 100% at Emergency. All event times remain discrete frame
 observations.
+
+The evaluation layer accepts a No Assist baseline, preserves its physical
+configuration and thresholds, and runs all three strategies. It reports raw
+outcomes and intervention quantities without selecting a best strategy. Standard
+regression execution returns evaluation data; pytest owns pass/fail expectations.
 
 ## Boundaries and constraints
 

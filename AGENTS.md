@@ -93,3 +93,12 @@
   delay.
 - Emit each AEB braking trigger event at most once, derive `aeb_trigger_time_s`
   from the first such event, and emit no Warning event for AEB.
+- Strategy evaluation must require a No Assist baseline and run No Assist,
+  Warning Only, then AEB with identical physical parameters and risk thresholds.
+- Record the actual evaluation thresholds in an immutable serializable snapshot.
+- Command duration is the sum of following frame intervals selected by an action;
+  a terminal-frame action contributes no duration.
+- Evaluation comparisons use signed AEB-minus-No-Assist deltas and must not infer
+  a best strategy or composite safety score.
+- Keep the standard regression catalog deterministic, immutable, and reusable;
+  runtime suite execution returns data rather than pass/fail judgments.

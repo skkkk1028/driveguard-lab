@@ -7,11 +7,17 @@ from typing import TypeAlias
 
 from .contracts import (
     LeadVehicleBrakingScenario,
+    RegressionCaseResult,
+    RegressionScenario,
+    RegressionSuiteResult,
     RiskMetrics,
+    RiskThresholdSnapshot,
     SimulationEvent,
     SimulationFrame,
     SimulationResult,
     SimulationSummary,
+    StrategyEvaluation,
+    StrategyOutcome,
     VehicleState,
 )
 from .enums import ControlAction, DrivingStrategy, RiskLevel, SimulationEventType
@@ -34,6 +40,12 @@ _DOMAIN_CONTRACT_TYPES = (
     SimulationEvent,
     SimulationSummary,
     SimulationResult,
+    RiskThresholdSnapshot,
+    StrategyOutcome,
+    StrategyEvaluation,
+    RegressionScenario,
+    RegressionCaseResult,
+    RegressionSuiteResult,
 )
 
 

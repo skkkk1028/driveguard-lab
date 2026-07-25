@@ -8,7 +8,10 @@ can be initialized, advanced one step, or run to completion under No Assist,
 Warning Only, and baseline AEB. The runner returns ordered frame and event tuples,
 an aggregate summary, and a versioned `SimulationResult`. Warning is non-braking.
 Baseline AEB applies half maximum braking at Danger and full maximum braking at
-Emergency, with no action latching or actuation delay.
+Emergency, with no action latching or actuation delay. A strategy evaluator runs
+all three strategies for one No Assist baseline and returns serializable safety
+and intervention metrics. Six deterministic standard regression scenarios are
+available individually or through a batch suite runner.
 
 ## Local setup
 
