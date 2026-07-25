@@ -102,3 +102,15 @@
   a best strategy or composite safety score.
 - Keep the standard regression catalog deterministic, immutable, and reusable;
   runtime suite execution returns data rather than pass/fail judgments.
+- Keep simulation HTTP endpoints synchronous and stateless; they must delegate
+  motion, risk, strategy, evaluation, and regression behavior to the simulation
+  core rather than copy it.
+- Keep versioned simulation endpoints under `/api/v1` and preserve `GET /health`.
+- API request models must reject non-finite values, unknown fields, incomplete
+  threshold overrides, and violations of existing domain constraints.
+- Reject API requests exceeding 10,000 advancement intervals per strategy before
+  calling a complete simulation runner.
+- Keep API validation failures in the stable HTTP 422 error envelope; do not add
+  transport error fields to simulation domain contracts.
+- Local-development CORS must use explicit origins and must not enable credentials
+  or wildcard origins.

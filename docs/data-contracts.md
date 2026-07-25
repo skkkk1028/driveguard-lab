@@ -179,3 +179,17 @@ the action. A terminal-frame action has no following interval and contributes no
 duration. Evaluation contracts store supplied values and validate representation;
 the simulation evaluation layer performs calculations. No contract provides a
 composite score or a best-strategy judgment.
+
+## HTTP delivery contracts
+
+Stage 11 does not migrate the domain schema or stable enums. FastAPI request
+models reproduce the domain's finite-number, sign, time-relationship, and
+threshold-order constraints and reject unknown fields. Evaluation input omits
+`strategy` because the API always constructs the required No Assist baseline.
+
+The single-simulation API response adds a transport wrapper containing
+`thresholds: RiskThresholdSnapshot` and `result: SimulationResult`. The result
+itself remains schema `1.0`. `StrategyEvaluation`, `RegressionScenario`, and
+`RegressionSuiteResult` are returned without another data envelope. Invalid
+transport or domain input uses a separate 422 error envelope documented in
+`simulation-api.md`; that envelope is not a simulation domain contract.
