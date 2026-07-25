@@ -114,3 +114,19 @@
   transport error fields to simulation domain contracts.
 - Local-development CORS must use explicit origins and must not enable credentials
   or wildcard origins.
+- Keep Dashboard simulation behavior in the backend; frontend validation must not
+  duplicate motion, risk classification, strategy, or summary calculations.
+- Keep Dashboard physical inputs in SI units and preserve numeric form values as
+  strings until submission validation and conversion.
+- Read the frontend API base from `VITE_API_BASE_URL`, defaulting to
+  `http://127.0.0.1:8000`, and centralize HTTP calls in the API client.
+- When custom risk thresholds are disabled, omit `risk_thresholds` from requests;
+  when enabled, send all five finite, strictly ordered values.
+- Regression scenarios in the phase 12 Dashboard are configuration presets only;
+  selecting one must not change the current run mode or single-run strategy.
+- Clear a displayed result when its configuration changes, and block duplicate
+  submissions while a request is active.
+- Do not recalculate or round API result values for Dashboard display.
+- Keep complete API responses in client state, but limit phase 12 presentation to
+  compact summaries; playback, event timelines, charts, animation, and export are
+  phase 13 or later work.

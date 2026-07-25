@@ -15,7 +15,7 @@ Only one explicitly requested phase is implemented at a time.
 | 9 | Baseline AEB strategy | Complete |
 | 10 | Strategy evaluation and regression scenarios | Complete |
 | 11 | FastAPI simulation endpoints | Complete |
-| 12 | Dashboard configuration workflow | Not started |
+| 12 | Dashboard configuration workflow | Complete |
 | 13 | Simulation playback and result visualization | Not started |
 | 14 | SUMO adapter exploration | Not started |
 | 15 | Integration hardening and expanded validation | Not started |
