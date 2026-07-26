@@ -20,6 +20,9 @@ dev = [
     "pytest>=8.3,<10",
     "ruff>=0.11,<1",
 ]
+sumo = [
+    "eclipse-sumo==1.27.1",
+]
 
 [tool.hatch.build.targets.wheel]
 packages = ["app"]
@@ -27,6 +30,9 @@ packages = ["app"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q"
+markers = [
+    "sumo: requires the optional supported Eclipse SUMO runtime",
+]
 
 [tool.ruff]
 target-version = "py311"

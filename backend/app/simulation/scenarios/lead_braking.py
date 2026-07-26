@@ -34,7 +34,7 @@ def _require_supported_strategy(scenario: LeadVehicleBrakingScenario) -> None:
         )
 
 
-def _select_control_action(
+def select_scenario_control_action(
     scenario: LeadVehicleBrakingScenario,
     risk_level: RiskLevel,
 ) -> ControlAction:
@@ -45,19 +45,29 @@ def _select_control_action(
     return ControlAction.NONE
 
 
-def _select_ego_acceleration_mps2(
+def select_scenario_ego_acceleration_mps2(
     current_frame: SimulationFrame,
+    scenario: LeadVehicleBrakingScenario,
+) -> float:
+    return scenario_ego_acceleration_for_action(
+        current_frame.control_action,
+        scenario,
+    )
+
+
+def scenario_ego_acceleration_for_action(
+    control_action: ControlAction,
     scenario: LeadVehicleBrakingScenario,
 ) -> float:
     if scenario.strategy != DrivingStrategy.AEB:
         return 0.0
     return calculate_aeb_acceleration_mps2(
-        current_frame.control_action,
+        control_action,
         scenario.ego_max_braking_deceleration_mps2,
     )
 
 
-def _lead_acceleration_at_time(
+def lead_acceleration_at_time(
     *,
     time_s: float,
     speed_mps: float,
@@ -77,7 +87,7 @@ def _with_lead_acceleration(
     return VehicleState(
         position_m=state.position_m,
         speed_mps=state.speed_mps,
-        acceleration_mps2=_lead_acceleration_at_time(
+        acceleration_mps2=lead_acceleration_at_time(
             time_s=time_s,
             speed_mps=state.speed_mps,
             scenario=scenario,
@@ -101,7 +111,7 @@ def initialize_lead_braking_scenario(
     lead = VehicleState(
         position_m=scenario.initial_gap_m,
         speed_mps=scenario.lead_initial_speed_mps,
-        acceleration_mps2=_lead_acceleration_at_time(
+        acceleration_mps2=lead_acceleration_at_time(
             time_s=0.0,
             speed_mps=scenario.lead_initial_speed_mps,
             scenario=scenario,
@@ -121,7 +131,7 @@ def initialize_lead_braking_scenario(
         ego=ego,
         lead=lead,
         metrics=metrics,
-        control_action=_select_control_action(scenario, metrics.risk_level),
+        control_action=select_scenario_control_action(scenario, metrics.risk_level),
     )
 
 
@@ -149,7 +159,7 @@ def advance_lead_braking_scenario_step(
 
     next_ego = advance_vehicle(
         current_frame.ego,
-        applied_acceleration_mps2=_select_ego_acceleration_mps2(
+        applied_acceleration_mps2=select_scenario_ego_acceleration_mps2(
             current_frame,
             scenario,
         ),
@@ -202,7 +212,7 @@ def advance_lead_braking_scenario_step(
         ego=next_ego,
         lead=next_lead,
         metrics=next_metrics,
-        control_action=_select_control_action(
+        control_action=select_scenario_control_action(
             scenario,
             next_metrics.risk_level,
         ),

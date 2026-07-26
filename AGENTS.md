@@ -142,3 +142,13 @@
   use memoized SVG paths.
 - Frontend playback must not add endpoints, duplicate simulation calculations,
   score strategies, or imply a safety guarantee.
+- Keep SUMO optional and isolated beneath `app.adapters.sumo`; it must not alter
+  FastAPI, Dashboard, domain contracts, internal `SimulationResult`, or schema
+  `1.0`.
+- SUMO trajectory replay uses a named `1e-9` absolute state tolerance. Native
+  probes report deterministic differences only and never claim either simulator
+  is more accurate.
+- Keep DriveGuard point-reference collision state and SUMO physical collision
+  state separate in adapter reports. SUMO may not replace the internal runner.
+- SUMO experiments use headless `sumo`, a unique TraCI connection, fixed seed,
+  and cleanup in all success and failure paths; do not launch `sumo-gui`.

@@ -66,6 +66,8 @@ Implemented:
   events, and categorical risk/action bands
 - Memoized native SVG speed, gap/stopping-distance, and TTC/THW plots with actual
   threshold references
+- Optional isolated SUMO exploration adapter with strict trajectory replay and
+  controlled ballistic native probes
 
 Not implemented:
 
@@ -94,8 +96,10 @@ regression execution returns evaluation data; pytest owns pass/fail expectations
 - The frontend is responsible only for configuration and result presentation;
   playback selects retained frames and must not move simulation behavior into
   React.
-- SUMO may be introduced later as an adapter; it will not be the only execution
-  environment for the core algorithms.
+- The optional SUMO adapter is an experiment boundary, not a replacement for the
+  internal runner. It keeps point-vehicle and SUMO physical collisions separate,
+  runs no HTTP endpoints or Dashboard controls, and uses an adapter-local report
+  schema (`0.1`) rather than changing domain schema `1.0`.
 
 The FastAPI application exposes synchronous, stateless `/api/v1` endpoints. It
 uses Pydantic only for HTTP request and error models; existing domain dataclasses
