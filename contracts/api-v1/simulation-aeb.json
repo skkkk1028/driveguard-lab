@@ -1,0 +1,314 @@
+{
+  "result": {
+    "events": [
+      {
+        "event_type": "lead_braking_started",
+        "message": "Lead vehicle braking started.",
+        "time_s": 0.0
+      },
+      {
+        "event_type": "risk_level_changed",
+        "message": "Risk level changed from caution to danger.",
+        "time_s": 1.5
+      },
+      {
+        "event_type": "partial_braking_triggered",
+        "message": "Partial braking triggered.",
+        "time_s": 1.5
+      },
+      {
+        "event_type": "risk_level_changed",
+        "message": "Risk level changed from danger to emergency.",
+        "time_s": 2.0
+      },
+      {
+        "event_type": "emergency_braking_triggered",
+        "message": "Emergency braking triggered.",
+        "time_s": 2.0
+      },
+      {
+        "event_type": "risk_level_changed",
+        "message": "Risk level changed from emergency to safe.",
+        "time_s": 3.0
+      },
+      {
+        "event_type": "simulation_completed",
+        "message": "Simulation completed.",
+        "time_s": 5.0
+      }
+    ],
+    "frames": [
+      {
+        "control_action": "none",
+        "ego": {
+          "acceleration_mps2": 0.0,
+          "position_m": 0.0,
+          "speed_mps": 10.0
+        },
+        "lead": {
+          "acceleration_mps2": -5.0,
+          "position_m": 15.0,
+          "speed_mps": 10.0
+        },
+        "metrics": {
+          "ego_stopping_distance_m": 6.25,
+          "gap_m": 15.0,
+          "relative_speed_mps": 0.0,
+          "risk_level": "caution",
+          "thw_s": 1.5,
+          "ttc_s": null
+        },
+        "time_s": 0.0
+      },
+      {
+        "control_action": "none",
+        "ego": {
+          "acceleration_mps2": 0.0,
+          "position_m": 5.0,
+          "speed_mps": 10.0
+        },
+        "lead": {
+          "acceleration_mps2": -5.0,
+          "position_m": 19.375,
+          "speed_mps": 7.5
+        },
+        "metrics": {
+          "ego_stopping_distance_m": 6.25,
+          "gap_m": 14.375,
+          "relative_speed_mps": 2.5,
+          "risk_level": "caution",
+          "thw_s": 1.4375,
+          "ttc_s": 5.75
+        },
+        "time_s": 0.5
+      },
+      {
+        "control_action": "none",
+        "ego": {
+          "acceleration_mps2": 0.0,
+          "position_m": 10.0,
+          "speed_mps": 10.0
+        },
+        "lead": {
+          "acceleration_mps2": -5.0,
+          "position_m": 22.5,
+          "speed_mps": 5.0
+        },
+        "metrics": {
+          "ego_stopping_distance_m": 6.25,
+          "gap_m": 12.5,
+          "relative_speed_mps": 5.0,
+          "risk_level": "caution",
+          "thw_s": 1.25,
+          "ttc_s": 2.5
+        },
+        "time_s": 1.0
+      },
+      {
+        "control_action": "partial_braking",
+        "ego": {
+          "acceleration_mps2": 0.0,
+          "position_m": 15.0,
+          "speed_mps": 10.0
+        },
+        "lead": {
+          "acceleration_mps2": -5.0,
+          "position_m": 24.375,
+          "speed_mps": 2.5
+        },
+        "metrics": {
+          "ego_stopping_distance_m": 6.25,
+          "gap_m": 9.375,
+          "relative_speed_mps": 7.5,
+          "risk_level": "danger",
+          "thw_s": 0.9375,
+          "ttc_s": 1.25
+        },
+        "time_s": 1.5
+      },
+      {
+        "control_action": "emergency_braking",
+        "ego": {
+          "acceleration_mps2": -4.0,
+          "position_m": 19.5,
+          "speed_mps": 8.0
+        },
+        "lead": {
+          "acceleration_mps2": 0.0,
+          "position_m": 25.0,
+          "speed_mps": 0.0
+        },
+        "metrics": {
+          "ego_stopping_distance_m": 4.0,
+          "gap_m": 5.5,
+          "relative_speed_mps": 8.0,
+          "risk_level": "emergency",
+          "thw_s": 0.6875,
+          "ttc_s": 0.6875
+        },
+        "time_s": 2.0
+      },
+      {
+        "control_action": "emergency_braking",
+        "ego": {
+          "acceleration_mps2": -8.0,
+          "position_m": 22.5,
+          "speed_mps": 4.0
+        },
+        "lead": {
+          "acceleration_mps2": 0.0,
+          "position_m": 25.0,
+          "speed_mps": 0.0
+        },
+        "metrics": {
+          "ego_stopping_distance_m": 1.0,
+          "gap_m": 2.5,
+          "relative_speed_mps": 4.0,
+          "risk_level": "emergency",
+          "thw_s": 0.625,
+          "ttc_s": 0.625
+        },
+        "time_s": 2.5
+      },
+      {
+        "control_action": "none",
+        "ego": {
+          "acceleration_mps2": 0.0,
+          "position_m": 23.5,
+          "speed_mps": 0.0
+        },
+        "lead": {
+          "acceleration_mps2": 0.0,
+          "position_m": 25.0,
+          "speed_mps": 0.0
+        },
+        "metrics": {
+          "ego_stopping_distance_m": 0.0,
+          "gap_m": 1.5,
+          "relative_speed_mps": 0.0,
+          "risk_level": "safe",
+          "thw_s": null,
+          "ttc_s": null
+        },
+        "time_s": 3.0
+      },
+      {
+        "control_action": "none",
+        "ego": {
+          "acceleration_mps2": 0.0,
+          "position_m": 23.5,
+          "speed_mps": 0.0
+        },
+        "lead": {
+          "acceleration_mps2": 0.0,
+          "position_m": 25.0,
+          "speed_mps": 0.0
+        },
+        "metrics": {
+          "ego_stopping_distance_m": 0.0,
+          "gap_m": 1.5,
+          "relative_speed_mps": 0.0,
+          "risk_level": "safe",
+          "thw_s": null,
+          "ttc_s": null
+        },
+        "time_s": 3.5
+      },
+      {
+        "control_action": "none",
+        "ego": {
+          "acceleration_mps2": 0.0,
+          "position_m": 23.5,
+          "speed_mps": 0.0
+        },
+        "lead": {
+          "acceleration_mps2": 0.0,
+          "position_m": 25.0,
+          "speed_mps": 0.0
+        },
+        "metrics": {
+          "ego_stopping_distance_m": 0.0,
+          "gap_m": 1.5,
+          "relative_speed_mps": 0.0,
+          "risk_level": "safe",
+          "thw_s": null,
+          "ttc_s": null
+        },
+        "time_s": 4.0
+      },
+      {
+        "control_action": "none",
+        "ego": {
+          "acceleration_mps2": 0.0,
+          "position_m": 23.5,
+          "speed_mps": 0.0
+        },
+        "lead": {
+          "acceleration_mps2": 0.0,
+          "position_m": 25.0,
+          "speed_mps": 0.0
+        },
+        "metrics": {
+          "ego_stopping_distance_m": 0.0,
+          "gap_m": 1.5,
+          "relative_speed_mps": 0.0,
+          "risk_level": "safe",
+          "thw_s": null,
+          "ttc_s": null
+        },
+        "time_s": 4.5
+      },
+      {
+        "control_action": "none",
+        "ego": {
+          "acceleration_mps2": 0.0,
+          "position_m": 23.5,
+          "speed_mps": 0.0
+        },
+        "lead": {
+          "acceleration_mps2": 0.0,
+          "position_m": 25.0,
+          "speed_mps": 0.0
+        },
+        "metrics": {
+          "ego_stopping_distance_m": 0.0,
+          "gap_m": 1.5,
+          "relative_speed_mps": 0.0,
+          "risk_level": "safe",
+          "thw_s": null,
+          "ttc_s": null
+        },
+        "time_s": 5.0
+      }
+    ],
+    "scenario": {
+      "ego_initial_speed_mps": 10.0,
+      "ego_max_braking_deceleration_mps2": 8.0,
+      "ego_reaction_time_s": 0.0,
+      "initial_gap_m": 15.0,
+      "lead_brake_start_s": 0.0,
+      "lead_braking_deceleration_mps2": 5.0,
+      "lead_initial_speed_mps": 10.0,
+      "max_simulation_time_s": 5.0,
+      "simulation_step_s": 0.5,
+      "strategy": "aeb"
+    },
+    "schema_version": "1.0",
+    "summary": {
+      "aeb_trigger_time_s": 1.5,
+      "collided": false,
+      "duration_s": 5.0,
+      "final_gap_m": 1.5,
+      "minimum_gap_m": 1.5,
+      "minimum_ttc_s": 0.625,
+      "warning_trigger_time_s": null
+    }
+  },
+  "thresholds": {
+    "caution_thw_s": 2.0,
+    "caution_ttc_s": 4.0,
+    "danger_thw_s": 1.0,
+    "danger_ttc_s": 2.0,
+    "emergency_ttc_s": 1.0
+  }
+}

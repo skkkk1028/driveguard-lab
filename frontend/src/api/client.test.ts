@@ -1,13 +1,14 @@
 import { describe, expect, it, vi } from "vitest";
 
 import type {
-  RegressionScenario,
   SimulationRequest,
-  SimulationRunResponse,
-  StrategyEvaluation,
   StrategyEvaluationRequest,
 } from "./types";
 import { ApiClientError, createApiClient, DEFAULT_API_BASE_URL } from "./client";
+import evaluationFixture from "../../../contracts/api-v1/evaluation-boundary.json";
+import catalogFixture from "../../../contracts/api-v1/regression-scenarios.json";
+import simulationFixture from "../../../contracts/api-v1/simulation-aeb.json";
+import simulationLimitErrorFixture from "../../../contracts/api-v1/simulation-limit-error.json";
 
 function jsonResponse(body: unknown, status = 200): Response {
   return {
@@ -34,11 +35,12 @@ const simulationRequest: SimulationRequest = {
 
 describe("DriveGuard API client", () => {
   it("uses the default API URL and lists regression scenarios", async () => {
-    const catalog: RegressionScenario[] = [];
-    const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(jsonResponse(catalog));
+    const fetchMock = vi
+      .fn<typeof fetch>()
+      .mockResolvedValue(jsonResponse(catalogFixture));
     const client = createApiClient(undefined, fetchMock);
 
-    await expect(client.listRegressionScenarios()).resolves.toEqual(catalog);
+    await expect(client.listRegressionScenarios()).resolves.toEqual(catalogFixture);
     expect(fetchMock).toHaveBeenCalledWith(
       `${DEFAULT_API_BASE_URL}/api/v1/regression-scenarios`,
       expect.objectContaining({ method: "GET" }),
@@ -46,11 +48,14 @@ describe("DriveGuard API client", () => {
   });
 
   it("normalizes a custom base URL and posts a simulation request", async () => {
-    const response = { thresholds: {}, result: {} } as SimulationRunResponse;
-    const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(jsonResponse(response));
+    const fetchMock = vi
+      .fn<typeof fetch>()
+      .mockResolvedValue(jsonResponse(simulationFixture));
     const client = createApiClient(" https://lab.example/api/ ", fetchMock);
 
-    await expect(client.runSimulation(simulationRequest)).resolves.toBe(response);
+    await expect(client.runSimulation(simulationRequest)).resolves.toBe(
+      simulationFixture,
+    );
     expect(fetchMock).toHaveBeenCalledWith(
       "https://lab.example/api/api/v1/simulations",
       expect.objectContaining({
@@ -62,8 +67,9 @@ describe("DriveGuard API client", () => {
   });
 
   it("posts evaluation input without adding a strategy", async () => {
-    const response = {} as StrategyEvaluation;
-    const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(jsonResponse(response));
+    const fetchMock = vi
+      .fn<typeof fetch>()
+      .mockResolvedValue(jsonResponse(evaluationFixture));
     const client = createApiClient("http://localhost:9000", fetchMock);
     const request: StrategyEvaluationRequest = {
       baseline_scenario: {
@@ -81,7 +87,9 @@ describe("DriveGuard API client", () => {
       strategy?: string;
     }).strategy;
 
-    await expect(client.evaluateStrategies(request)).resolves.toBe(response);
+    await expect(client.evaluateStrategies(request)).resolves.toBe(
+      evaluationFixture,
+    );
     const init = fetchMock.mock.calls[0][1];
     expect(fetchMock.mock.calls[0][0]).toBe(
       "http://localhost:9000/api/v1/evaluations",
@@ -94,31 +102,18 @@ describe("DriveGuard API client", () => {
 
   it("exposes the stable API error code, status, and details", async () => {
     const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(
-      jsonResponse(
-        {
-          error: {
-            code: "validation_error",
-            message: "Request validation failed.",
-            details: [
-              {
-                location: ["body", "scenario", "initial_gap_m"],
-                message: "Input should be greater than 0",
-                error_type: "greater_than",
-              },
-            ],
-          },
-        },
-        422,
-      ),
+      jsonResponse(simulationLimitErrorFixture, 422),
     );
     const client = createApiClient(undefined, fetchMock);
 
     const error = await client.runSimulation(simulationRequest).catch((reason) => reason);
     expect(error).toBeInstanceOf(ApiClientError);
     expect(error).toMatchObject({
-      code: "validation_error",
+      code: "simulation_limit_exceeded",
       status: 422,
-      details: [expect.objectContaining({ error_type: "greater_than" })],
+      details: [
+        expect.objectContaining({ error_type: "simulation_limit_exceeded" }),
+      ],
     });
   });
 
@@ -138,6 +133,15 @@ describe("DriveGuard API client", () => {
     ).rejects.toMatchObject({ code: "http_error", status: 503 });
   });
 
+  it("preserves request cancellation instead of normalizing it", async () => {
+    const abort = new DOMException("cancelled", "AbortError");
+    const fetchMock = vi.fn<typeof fetch>().mockRejectedValue(abort);
+
+    await expect(
+      createApiClient(undefined, fetchMock).listRegressionScenarios(),
+    ).rejects.toBe(abort);
+  });
+
   it("treats a malformed error detail list as a generic HTTP failure", async () => {
     const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(
       jsonResponse(
@@ -155,5 +159,100 @@ describe("DriveGuard API client", () => {
     await expect(
       createApiClient(undefined, fetchMock).runSimulation(simulationRequest),
     ).rejects.toMatchObject({ code: "http_error", status: 422, details: [] });
+  });
+
+  it.each([
+    ["schema version", (value: typeof simulationFixture) => {
+      value.result.schema_version = "2.0";
+    }],
+    ["request strategy", (value: typeof simulationFixture) => {
+      value.result.scenario.strategy = "no_assist";
+    }],
+    ["risk enum", (value: typeof simulationFixture) => {
+      value.result.frames[0].metrics.risk_level = "unknown";
+    }],
+    ["finite number", (value: typeof simulationFixture) => {
+      value.result.frames[0].metrics.gap_m = Number.POSITIVE_INFINITY;
+    }],
+    ["required nested field", (value: typeof simulationFixture) => {
+      delete (value.result.summary as Partial<typeof value.result.summary>).duration_s;
+    }],
+    ["frame ordering", (value: typeof simulationFixture) => {
+      value.result.frames[1].time_s = 0;
+    }],
+    ["completion event", (value: typeof simulationFixture) => {
+      value.result.events = value.result.events.filter(
+        (event) => event.event_type !== "simulation_completed",
+      );
+    }],
+    ["completion time", (value: typeof simulationFixture) => {
+      const completion = value.result.events.find(
+        (event) => event.event_type === "simulation_completed",
+      );
+      if (completion) {
+        completion.time_s = 4.5;
+      }
+    }],
+  ])("rejects a successful response with an invalid %s", async (_name, mutate) => {
+    const malformed = structuredClone(simulationFixture);
+    mutate(malformed);
+    const fetchMock = vi
+      .fn<typeof fetch>()
+      .mockResolvedValue(jsonResponse(malformed));
+
+    const error = await createApiClient(undefined, fetchMock)
+      .runSimulation(simulationRequest)
+      .catch((reason: unknown) => reason);
+
+    expect(error).toBeInstanceOf(ApiClientError);
+    expect(error).toMatchObject({
+      code: "response_contract_error",
+      status: 200,
+      details: [],
+    });
+  });
+
+  it("rejects endpoint-specific catalog and evaluation contract drift", async () => {
+    const malformedCatalog = structuredClone(catalogFixture);
+    malformedCatalog[0].baseline_scenario.strategy = "aeb";
+    const malformedEvaluation = structuredClone(evaluationFixture);
+    malformedEvaluation.aeb.strategy = "warning_only";
+
+    await expect(
+      createApiClient(
+        undefined,
+        vi.fn<typeof fetch>().mockResolvedValue(jsonResponse(malformedCatalog)),
+      ).listRegressionScenarios(),
+    ).rejects.toMatchObject({ code: "response_contract_error", status: 200 });
+    await expect(
+      createApiClient(
+        undefined,
+        vi.fn<typeof fetch>().mockResolvedValue(jsonResponse(malformedEvaluation)),
+      ).evaluateStrategies({ baseline_scenario: simulationRequest.scenario }),
+    ).rejects.toMatchObject({ code: "response_contract_error", status: 200 });
+  });
+
+  it("accepts additive response fields and never includes raw payload values in errors", async () => {
+    const extended = structuredClone(simulationFixture);
+    (extended.result as typeof extended.result & { future_field?: string }).future_field =
+      "future-compatible";
+    const acceptedClient = createApiClient(
+      undefined,
+      vi.fn<typeof fetch>().mockResolvedValue(jsonResponse(extended)),
+    );
+    await expect(acceptedClient.runSimulation(simulationRequest)).resolves.toBe(
+      extended,
+    );
+
+    const malformed = structuredClone(simulationFixture);
+    malformed.result.schema_version = "secret-response-value";
+    const error = await createApiClient(
+      undefined,
+      vi.fn<typeof fetch>().mockResolvedValue(jsonResponse(malformed)),
+    )
+      .runSimulation(simulationRequest)
+      .catch((reason: unknown) => reason);
+    expect(error).toBeInstanceOf(ApiClientError);
+    expect(String(error)).not.toContain("secret-response-value");
   });
 });

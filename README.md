@@ -4,12 +4,14 @@ DriveGuard Lab 是一个面向智能驾驶危险场景的可重复仿真与碰�
 
 ## 当前开发状态
 
-阶段 1 至阶段 14 已完成工程基线、领域数据契约、基础运动与风险计算，No Assist、
+阶段 1 至阶段 15 已完成工程基线、领域数据契约、基础运动与风险计算，No Assist、
 Warning Only 和基线 AEB 的确定性运行，以及三策略评估和六个标准回归场景。评估结果
 包含碰撞、间距、触发和干预指标，但不生成主观策略排名。上述能力现已通过版本化
 FastAPI 端点提供；中文 Dashboard 已支持配置并运行单策略仿真或三策略评估、查看
 紧凑摘要，并对完整结果进行逐帧播放、事件跳转和联动 SVG 曲线检查。阶段 14 还提供
 隔离、可选的 SUMO 回放与原生探针实验适配器；它不改变 API、Dashboard 或内部仿真器。
+阶段 15 增加成功响应运行时校验、共享 API 契约样本、完整回归不变量和明确分离的基础/
+SUMO 验证门禁，但不改变 API 或领域 schema `1.0`。
 
 ## v1.0 目标范围
 
@@ -27,6 +29,7 @@ THW、制动距离、碰撞风险和 AEB 控制策略。当前已完成核心领
 ```text
 driveguard-lab/
 ├── backend/       # FastAPI 应用、后端测试和 Python 工具配置
+├── contracts/     # 后端生成且由前后端共同验证的 API v1 样本
 ├── frontend/      # React/Vite 应用和前端测试
 ├── docs/          # 架构边界与开发路线图
 ├── scripts/       # 本地验证脚本
@@ -87,13 +90,20 @@ PowerShell 的全局执行策略。
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\verify.ps1
 ```
 
+该命令执行可重复的基础门禁并明确排除可选 SUMO。安装受支持的 headless SUMO 1.27.1
+后，再执行严格 SUMO 验证；运行时缺失会直接失败而不是跳过：
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\verify-sumo.ps1
+```
+
 也可以分别执行：
 
 ```powershell
 cd backend
 .\.venv\Scripts\python.exe -m ruff check .
 .\.venv\Scripts\python.exe -m mypy app tests
-.\.venv\Scripts\python.exe -m pytest
+.\.venv\Scripts\python.exe -m pytest -m "not sumo"
 
 cd ..\frontend
 npm.cmd run lint
@@ -113,8 +123,8 @@ npm.cmd run build
 可序列化的跨策略评估和标准回归套件。碰撞、首次 Warning 和首次 AEB 时间均为离散
 帧时刻。现有 API 可运行单策略仿真、三策略评估和标准回归套件；Dashboard 可配置
 和运行前两类操作，并展示摘要、离散帧播放、当前策略事件以及联动 SVG 图表。尚无
-ACC 控制、结果持久化或导出、实时流式仿真、数据库、WebSocket、CARLA、
-TraCI 或 OpenSCENARIO 集成。
+ACC 控制、结果持久化或导出、实时流式仿真、数据库、WebSocket、CARLA 或
+OpenSCENARIO 集成。TraCI 仅存在于隔离的可选 SUMO 实验适配器中。
 
 ## 许可证
 

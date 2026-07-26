@@ -68,6 +68,11 @@ Implemented:
   threshold references
 - Optional isolated SUMO exploration adapter with strict trajectory replay and
   controlled ballistic native probes
+- Runtime validation of successful Dashboard API responses without duplicating
+  simulation calculations
+- Shared deterministic API v1 fixtures checked by both backend and frontend tests
+- Expanded whole-catalog invariants and explicit base-versus-SUMO verification
+  profiles
 
 Not implemented:
 
@@ -96,6 +101,10 @@ regression execution returns evaluation data; pytest owns pass/fail expectations
 - The frontend is responsible only for configuration and result presentation;
   playback selects retained frames and must not move simulation behavior into
   React.
+- The frontend API boundary rejects missing required response fields, non-finite
+  values, unknown stable enum values, incompatible schema versions, and invalid
+  frame/event ordering. It allows additive unknown fields and does not recompute
+  physical or risk results.
 - The optional SUMO adapter is an experiment boundary, not a replacement for the
   internal runner. It keeps point-vehicle and SUMO physical collisions separate,
   runs no HTTP endpoints or Dashboard controls, and uses an adapter-local report

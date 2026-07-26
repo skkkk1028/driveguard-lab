@@ -5,13 +5,13 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type {
   LeadVehicleBrakingScenario,
-  RegressionScenario,
   SimulationResult,
   SimulationRunResponse,
-  StrategyEvaluation,
-  StrategyOutcome,
 } from "./api/types";
 import App from "./App";
+import evaluationFixture from "../../contracts/api-v1/evaluation-boundary.json";
+import catalogFixture from "../../contracts/api-v1/regression-scenarios.json";
+import simulationFixture from "../../contracts/api-v1/simulation-aeb.json";
 
 function jsonResponse(body: unknown, status = 200): Response {
   return {
@@ -34,25 +34,7 @@ const baseScenario: LeadVehicleBrakingScenario = {
   strategy: "no_assist",
 };
 
-const alternateScenario: LeadVehicleBrakingScenario = {
-  ...baseScenario,
-  ego_initial_speed_mps: 20,
-  lead_initial_speed_mps: 15,
-  initial_gap_m: 30,
-};
-
-const catalog: RegressionScenario[] = [
-  {
-    scenario_id: "aeb_avoids_collision",
-    description: "AEB avoids collision",
-    baseline_scenario: baseScenario,
-  },
-  {
-    scenario_id: "aeb_unavoidable_collision",
-    description: "AEB delays collision",
-    baseline_scenario: alternateScenario,
-  },
-];
+const catalog = catalogFixture;
 
 function simulationResult(
   strategy: LeadVehicleBrakingScenario["strategy"],
@@ -78,9 +60,15 @@ function simulationResult(
         control_action: "none",
       },
     ],
-    events: [],
+    events: [
+      {
+        time_s: 0,
+        event_type: "simulation_completed",
+        message: "Simulation completed at 0 seconds.",
+      },
+    ],
     summary: {
-      duration_s: 5,
+      duration_s: 0,
       collided,
       minimum_gap_m: collided ? -1 : 4,
       minimum_ttc_s: collided ? 0 : 1.5,
@@ -101,34 +89,6 @@ function simulationResponse(): SimulationRunResponse {
       caution_thw_s: 2,
     },
     result: simulationResult("aeb"),
-  };
-}
-
-function outcome(strategy: StrategyOutcome["strategy"], collided: boolean): StrategyOutcome {
-  const result = simulationResult(strategy, collided);
-  return {
-    strategy,
-    result,
-    collision_time_s: collided ? 2.5 : null,
-    final_ego_speed_mps: strategy === "aeb" ? 0 : 10,
-    warning_command_duration_s: strategy === "warning_only" ? 3 : 0,
-    partial_braking_command_duration_s: strategy === "aeb" ? 0.5 : 0,
-    emergency_braking_command_duration_s: strategy === "aeb" ? 1 : 0,
-  };
-}
-
-function evaluationResponse(): StrategyEvaluation {
-  return {
-    schema_version: "1.0",
-    baseline_scenario: baseScenario,
-    thresholds: simulationResponse().thresholds,
-    no_assist: outcome("no_assist", true),
-    warning_only: outcome("warning_only", true),
-    aeb: outcome("aeb", false),
-    aeb_avoided_collision: true,
-    aeb_collision_time_delta_s: null,
-    aeb_minimum_gap_delta_m: 5,
-    aeb_final_gap_delta_m: 5,
   };
 }
 
@@ -174,7 +134,7 @@ describe("Dashboard configuration workflow", () => {
   });
 
   it("runs one strategy without threshold overrides and shows its summary", async () => {
-    fetchMock.mockResolvedValueOnce(jsonResponse(simulationResponse()));
+    fetchMock.mockResolvedValueOnce(jsonResponse(simulationFixture));
     render(<App />);
     await screen.findByRole("option", { name: "AEB 避免碰撞" });
 
@@ -210,7 +170,7 @@ describe("Dashboard configuration workflow", () => {
   });
 
   it("runs evaluation without a strategy field and renders all outcomes", async () => {
-    fetchMock.mockResolvedValueOnce(jsonResponse(evaluationResponse()));
+    fetchMock.mockResolvedValueOnce(jsonResponse(evaluationFixture));
     render(<App />);
     await screen.findByRole("option", { name: "AEB 避免碰撞" });
     fireEvent.click(screen.getByRole("radio", { name: /三策略评估/ }));
@@ -348,6 +308,35 @@ describe("Dashboard configuration workflow", () => {
     expect(screen.getByText("结果摘要将在这里出现")).toBeInTheDocument();
   });
 
+  it("rejects incompatible success data without retaining the previous result", async () => {
+    const incompatible = {
+      ...simulationResponse(),
+      result: {
+        ...simulationResponse().result,
+        schema_version: "2.0",
+      },
+    };
+    fetchMock
+      .mockResolvedValueOnce(jsonResponse(simulationResponse()))
+      .mockResolvedValueOnce(jsonResponse(incompatible));
+    render(<App />);
+    await screen.findByRole("option", { name: "AEB 避免碰撞" });
+
+    fireEvent.click(screen.getByRole("button", { name: "运行单策略仿真" }));
+    await screen.findByRole("heading", { name: "单策略运行摘要" });
+    fireEvent.click(screen.getByRole("button", { name: "运行单策略仿真" }));
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      /API 返回了不兼容的数据/,
+    );
+    expect(
+      screen.queryByRole("heading", { name: "单策略运行摘要" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("heading", { name: "仿真逐帧播放与结果可视化" }),
+    ).not.toBeInTheDocument();
+  });
+
   it("resets a newly completed playback to the first frame", async () => {
     const replayResponse = simulationResponse();
     replayResponse.result.frames.push({
@@ -357,6 +346,8 @@ describe("Dashboard configuration workflow", () => {
       lead: { ...replayResponse.result.frames[0].lead, position_m: 19 },
       metrics: { ...replayResponse.result.frames[0].metrics, gap_m: 14 },
     });
+    replayResponse.result.events[0].time_s = 0.5;
+    replayResponse.result.summary.duration_s = 0.5;
     fetchMock
       .mockResolvedValueOnce(jsonResponse(replayResponse))
       .mockResolvedValueOnce(jsonResponse(replayResponse));

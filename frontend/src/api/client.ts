@@ -7,6 +7,12 @@ import type {
   StrategyEvaluation,
   StrategyEvaluationRequest,
 } from "./types";
+import {
+  decodeRegressionScenarios,
+  decodeSimulationRunResponse,
+  decodeStrategyEvaluation,
+  ResponseContractViolation,
+} from "./contract";
 
 export const DEFAULT_API_BASE_URL = "http://127.0.0.1:8000";
 
@@ -91,6 +97,7 @@ export function createApiClient(
   async function request<T>(
     path: string,
     init: RequestInit,
+    decode: (value: unknown) => T,
   ): Promise<T> {
     let response: Response;
     try {
@@ -125,31 +132,57 @@ export function createApiClient(
       });
     }
 
-    return payload as T;
+    try {
+      return decode(payload);
+    } catch (error) {
+      if (error instanceof ResponseContractViolation) {
+        throw new ApiClientError(
+          `仿真 API 返回了不兼容的数据（${error.path}）。`,
+          {
+            code: "response_contract_error",
+            status: response.status,
+          },
+        );
+      }
+      throw error;
+    }
   }
 
   return {
     listRegressionScenarios(signal) {
-      return request<RegressionScenario[]>("/api/v1/regression-scenarios", {
-        method: "GET",
-        signal,
-      });
+      return request<RegressionScenario[]>(
+        "/api/v1/regression-scenarios",
+        {
+          method: "GET",
+          signal,
+        },
+        decodeRegressionScenarios,
+      );
     },
     runSimulation(simulationRequest, signal) {
-      return request<SimulationRunResponse>("/api/v1/simulations", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(simulationRequest),
-        signal,
-      });
+      return request<SimulationRunResponse>(
+        "/api/v1/simulations",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(simulationRequest),
+          signal,
+        },
+        (value) =>
+          decodeSimulationRunResponse(value, simulationRequest.scenario.strategy),
+      );
     },
     evaluateStrategies(evaluationRequest, signal) {
-      return request<StrategyEvaluation>("/api/v1/evaluations", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(evaluationRequest),
-        signal,
-      });
+      return request<StrategyEvaluation>(
+        "/api/v1/evaluations",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(evaluationRequest),
+          signal,
+        },
+        decodeStrategyEvaluation,
+      );
     },
   };
 }

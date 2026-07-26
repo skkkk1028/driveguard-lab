@@ -18,5 +18,5 @@ Only one explicitly requested phase is implemented at a time.
 | 12 | Dashboard configuration workflow | Complete |
 | 13 | Simulation playback and result visualization | Complete |
 | 14 | SUMO adapter exploration | Complete |
-| 15 | Integration hardening and expanded validation | Not started |
+| 15 | Integration hardening and expanded validation | Complete |
 | 16 | v1.0 documentation and release readiness | Not started |

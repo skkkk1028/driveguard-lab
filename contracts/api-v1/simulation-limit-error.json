@@ -1,0 +1,17 @@
+{
+  "error": {
+    "code": "simulation_limit_exceeded",
+    "details": [
+      {
+        "error_type": "simulation_limit_exceeded",
+        "location": [
+          "body",
+          "scenario",
+          "max_simulation_time_s"
+        ],
+        "message": "max_simulation_time_s must not exceed simulation_step_s multiplied by 10000"
+      }
+    ],
+    "message": "Simulation exceeds the limit of 10000 advancement intervals."
+  }
+}

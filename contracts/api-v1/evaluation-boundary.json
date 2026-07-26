@@ -1,0 +1,414 @@
+{
+  "aeb": {
+    "collision_time_s": null,
+    "emergency_braking_command_duration_s": 1.0,
+    "final_ego_speed_mps": 11.6,
+    "partial_braking_command_duration_s": 0.10000000000000009,
+    "result": {
+      "events": [
+        {
+          "event_type": "emergency_braking_triggered",
+          "message": "Emergency braking triggered.",
+          "time_s": 0.0
+        },
+        {
+          "event_type": "lead_braking_started",
+          "message": "Lead vehicle braking started.",
+          "time_s": 0.75
+        },
+        {
+          "event_type": "risk_level_changed",
+          "message": "Risk level changed from emergency to danger.",
+          "time_s": 1.0
+        },
+        {
+          "event_type": "partial_braking_triggered",
+          "message": "Partial braking triggered.",
+          "time_s": 1.0
+        },
+        {
+          "event_type": "simulation_completed",
+          "message": "Simulation completed.",
+          "time_s": 1.1
+        }
+      ],
+      "frames": [
+        {
+          "control_action": "emergency_braking",
+          "ego": {
+            "acceleration_mps2": 0.0,
+            "position_m": 0.0,
+            "speed_mps": 20.0
+          },
+          "lead": {
+            "acceleration_mps2": 0.0,
+            "position_m": 10.0,
+            "speed_mps": 10.0
+          },
+          "metrics": {
+            "ego_stopping_distance_m": 25.0,
+            "gap_m": 10.0,
+            "relative_speed_mps": 10.0,
+            "risk_level": "emergency",
+            "thw_s": 0.5,
+            "ttc_s": 1.0
+          },
+          "time_s": 0.0
+        },
+        {
+          "control_action": "emergency_braking",
+          "ego": {
+            "acceleration_mps2": -8.0,
+            "position_m": 9.0,
+            "speed_mps": 16.0
+          },
+          "lead": {
+            "acceleration_mps2": 0.0,
+            "position_m": 15.0,
+            "speed_mps": 10.0
+          },
+          "metrics": {
+            "ego_stopping_distance_m": 16.0,
+            "gap_m": 6.0,
+            "relative_speed_mps": 6.0,
+            "risk_level": "emergency",
+            "thw_s": 0.375,
+            "ttc_s": 1.0
+          },
+          "time_s": 0.5
+        },
+        {
+          "control_action": "partial_braking",
+          "ego": {
+            "acceleration_mps2": -8.0,
+            "position_m": 16.0,
+            "speed_mps": 12.0
+          },
+          "lead": {
+            "acceleration_mps2": -4.0,
+            "position_m": 19.875,
+            "speed_mps": 9.0
+          },
+          "metrics": {
+            "ego_stopping_distance_m": 9.0,
+            "gap_m": 3.875,
+            "relative_speed_mps": 3.0,
+            "risk_level": "danger",
+            "thw_s": 0.3229166666666667,
+            "ttc_s": 1.2916666666666667
+          },
+          "time_s": 1.0
+        },
+        {
+          "control_action": "partial_braking",
+          "ego": {
+            "acceleration_mps2": -4.0,
+            "position_m": 17.180000000000003,
+            "speed_mps": 11.6
+          },
+          "lead": {
+            "acceleration_mps2": -4.0,
+            "position_m": 20.755000000000003,
+            "speed_mps": 8.6
+          },
+          "metrics": {
+            "ego_stopping_distance_m": 8.41,
+            "gap_m": 3.5749999999999993,
+            "relative_speed_mps": 3.0,
+            "risk_level": "danger",
+            "thw_s": 0.30818965517241376,
+            "ttc_s": 1.1916666666666664
+          },
+          "time_s": 1.1
+        }
+      ],
+      "scenario": {
+        "ego_initial_speed_mps": 20.0,
+        "ego_max_braking_deceleration_mps2": 8.0,
+        "ego_reaction_time_s": 0.0,
+        "initial_gap_m": 10.0,
+        "lead_brake_start_s": 0.75,
+        "lead_braking_deceleration_mps2": 4.0,
+        "lead_initial_speed_mps": 10.0,
+        "max_simulation_time_s": 1.1,
+        "simulation_step_s": 0.5,
+        "strategy": "aeb"
+      },
+      "schema_version": "1.0",
+      "summary": {
+        "aeb_trigger_time_s": 0.0,
+        "collided": false,
+        "duration_s": 1.1,
+        "final_gap_m": 3.5749999999999993,
+        "minimum_gap_m": 3.5749999999999993,
+        "minimum_ttc_s": 1.0,
+        "warning_trigger_time_s": null
+      }
+    },
+    "strategy": "aeb",
+    "warning_command_duration_s": 0.0
+  },
+  "aeb_avoided_collision": true,
+  "aeb_collision_time_delta_s": null,
+  "aeb_final_gap_delta_m": 3.6999999999999993,
+  "aeb_minimum_gap_delta_m": 3.6999999999999993,
+  "baseline_scenario": {
+    "ego_initial_speed_mps": 20.0,
+    "ego_max_braking_deceleration_mps2": 8.0,
+    "ego_reaction_time_s": 0.0,
+    "initial_gap_m": 10.0,
+    "lead_brake_start_s": 0.75,
+    "lead_braking_deceleration_mps2": 4.0,
+    "lead_initial_speed_mps": 10.0,
+    "max_simulation_time_s": 1.1,
+    "simulation_step_s": 0.5,
+    "strategy": "no_assist"
+  },
+  "no_assist": {
+    "collision_time_s": 1.0,
+    "emergency_braking_command_duration_s": 0.0,
+    "final_ego_speed_mps": 20.0,
+    "partial_braking_command_duration_s": 0.0,
+    "result": {
+      "events": [
+        {
+          "event_type": "lead_braking_started",
+          "message": "Lead vehicle braking started.",
+          "time_s": 0.75
+        },
+        {
+          "event_type": "collision",
+          "message": "Point-vehicle collision state reached.",
+          "time_s": 1.0
+        },
+        {
+          "event_type": "simulation_completed",
+          "message": "Simulation completed.",
+          "time_s": 1.0
+        }
+      ],
+      "frames": [
+        {
+          "control_action": "none",
+          "ego": {
+            "acceleration_mps2": 0.0,
+            "position_m": 0.0,
+            "speed_mps": 20.0
+          },
+          "lead": {
+            "acceleration_mps2": 0.0,
+            "position_m": 10.0,
+            "speed_mps": 10.0
+          },
+          "metrics": {
+            "ego_stopping_distance_m": 25.0,
+            "gap_m": 10.0,
+            "relative_speed_mps": 10.0,
+            "risk_level": "emergency",
+            "thw_s": 0.5,
+            "ttc_s": 1.0
+          },
+          "time_s": 0.0
+        },
+        {
+          "control_action": "none",
+          "ego": {
+            "acceleration_mps2": 0.0,
+            "position_m": 10.0,
+            "speed_mps": 20.0
+          },
+          "lead": {
+            "acceleration_mps2": 0.0,
+            "position_m": 15.0,
+            "speed_mps": 10.0
+          },
+          "metrics": {
+            "ego_stopping_distance_m": 25.0,
+            "gap_m": 5.0,
+            "relative_speed_mps": 10.0,
+            "risk_level": "emergency",
+            "thw_s": 0.25,
+            "ttc_s": 0.5
+          },
+          "time_s": 0.5
+        },
+        {
+          "control_action": "none",
+          "ego": {
+            "acceleration_mps2": 0.0,
+            "position_m": 20.0,
+            "speed_mps": 20.0
+          },
+          "lead": {
+            "acceleration_mps2": -4.0,
+            "position_m": 19.875,
+            "speed_mps": 9.0
+          },
+          "metrics": {
+            "ego_stopping_distance_m": 25.0,
+            "gap_m": -0.125,
+            "relative_speed_mps": 11.0,
+            "risk_level": "emergency",
+            "thw_s": 0.0,
+            "ttc_s": 0.0
+          },
+          "time_s": 1.0
+        }
+      ],
+      "scenario": {
+        "ego_initial_speed_mps": 20.0,
+        "ego_max_braking_deceleration_mps2": 8.0,
+        "ego_reaction_time_s": 0.0,
+        "initial_gap_m": 10.0,
+        "lead_brake_start_s": 0.75,
+        "lead_braking_deceleration_mps2": 4.0,
+        "lead_initial_speed_mps": 10.0,
+        "max_simulation_time_s": 1.1,
+        "simulation_step_s": 0.5,
+        "strategy": "no_assist"
+      },
+      "schema_version": "1.0",
+      "summary": {
+        "aeb_trigger_time_s": null,
+        "collided": true,
+        "duration_s": 1.0,
+        "final_gap_m": -0.125,
+        "minimum_gap_m": -0.125,
+        "minimum_ttc_s": 0.0,
+        "warning_trigger_time_s": null
+      }
+    },
+    "strategy": "no_assist",
+    "warning_command_duration_s": 0.0
+  },
+  "schema_version": "1.0",
+  "thresholds": {
+    "caution_thw_s": 2.0,
+    "caution_ttc_s": 4.0,
+    "danger_thw_s": 1.0,
+    "danger_ttc_s": 2.0,
+    "emergency_ttc_s": 1.0
+  },
+  "warning_only": {
+    "collision_time_s": 1.0,
+    "emergency_braking_command_duration_s": 0.0,
+    "final_ego_speed_mps": 20.0,
+    "partial_braking_command_duration_s": 0.0,
+    "result": {
+      "events": [
+        {
+          "event_type": "warning_triggered",
+          "message": "Warning triggered.",
+          "time_s": 0.0
+        },
+        {
+          "event_type": "lead_braking_started",
+          "message": "Lead vehicle braking started.",
+          "time_s": 0.75
+        },
+        {
+          "event_type": "collision",
+          "message": "Point-vehicle collision state reached.",
+          "time_s": 1.0
+        },
+        {
+          "event_type": "simulation_completed",
+          "message": "Simulation completed.",
+          "time_s": 1.0
+        }
+      ],
+      "frames": [
+        {
+          "control_action": "warning",
+          "ego": {
+            "acceleration_mps2": 0.0,
+            "position_m": 0.0,
+            "speed_mps": 20.0
+          },
+          "lead": {
+            "acceleration_mps2": 0.0,
+            "position_m": 10.0,
+            "speed_mps": 10.0
+          },
+          "metrics": {
+            "ego_stopping_distance_m": 25.0,
+            "gap_m": 10.0,
+            "relative_speed_mps": 10.0,
+            "risk_level": "emergency",
+            "thw_s": 0.5,
+            "ttc_s": 1.0
+          },
+          "time_s": 0.0
+        },
+        {
+          "control_action": "warning",
+          "ego": {
+            "acceleration_mps2": 0.0,
+            "position_m": 10.0,
+            "speed_mps": 20.0
+          },
+          "lead": {
+            "acceleration_mps2": 0.0,
+            "position_m": 15.0,
+            "speed_mps": 10.0
+          },
+          "metrics": {
+            "ego_stopping_distance_m": 25.0,
+            "gap_m": 5.0,
+            "relative_speed_mps": 10.0,
+            "risk_level": "emergency",
+            "thw_s": 0.25,
+            "ttc_s": 0.5
+          },
+          "time_s": 0.5
+        },
+        {
+          "control_action": "warning",
+          "ego": {
+            "acceleration_mps2": 0.0,
+            "position_m": 20.0,
+            "speed_mps": 20.0
+          },
+          "lead": {
+            "acceleration_mps2": -4.0,
+            "position_m": 19.875,
+            "speed_mps": 9.0
+          },
+          "metrics": {
+            "ego_stopping_distance_m": 25.0,
+            "gap_m": -0.125,
+            "relative_speed_mps": 11.0,
+            "risk_level": "emergency",
+            "thw_s": 0.0,
+            "ttc_s": 0.0
+          },
+          "time_s": 1.0
+        }
+      ],
+      "scenario": {
+        "ego_initial_speed_mps": 20.0,
+        "ego_max_braking_deceleration_mps2": 8.0,
+        "ego_reaction_time_s": 0.0,
+        "initial_gap_m": 10.0,
+        "lead_brake_start_s": 0.75,
+        "lead_braking_deceleration_mps2": 4.0,
+        "lead_initial_speed_mps": 10.0,
+        "max_simulation_time_s": 1.1,
+        "simulation_step_s": 0.5,
+        "strategy": "warning_only"
+      },
+      "schema_version": "1.0",
+      "summary": {
+        "aeb_trigger_time_s": null,
+        "collided": true,
+        "duration_s": 1.0,
+        "final_gap_m": -0.125,
+        "minimum_gap_m": -0.125,
+        "minimum_ttc_s": 0.0,
+        "warning_trigger_time_s": 0.0
+      }
+    },
+    "strategy": "warning_only",
+    "warning_command_duration_s": 1.0
+  }
+}

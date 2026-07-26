@@ -1,0 +1,98 @@
+[
+  {
+    "baseline_scenario": {
+      "ego_initial_speed_mps": 10.0,
+      "ego_max_braking_deceleration_mps2": 8.0,
+      "ego_reaction_time_s": 0.5,
+      "initial_gap_m": 50.0,
+      "lead_brake_start_s": 1.0,
+      "lead_braking_deceleration_mps2": 1.0,
+      "lead_initial_speed_mps": 10.0,
+      "max_simulation_time_s": 2.0,
+      "simulation_step_s": 0.5,
+      "strategy": "no_assist"
+    },
+    "description": "Stable following with no strategy intervention.",
+    "scenario_id": "stable_following"
+  },
+  {
+    "baseline_scenario": {
+      "ego_initial_speed_mps": 10.0,
+      "ego_max_braking_deceleration_mps2": 100.0,
+      "ego_reaction_time_s": 0.0,
+      "initial_gap_m": 30.0,
+      "lead_brake_start_s": 0.0,
+      "lead_braking_deceleration_mps2": 5.0,
+      "lead_initial_speed_mps": 10.0,
+      "max_simulation_time_s": 1.5,
+      "simulation_step_s": 0.5,
+      "strategy": "no_assist"
+    },
+    "description": "Caution risk without Warning or AEB intervention.",
+    "scenario_id": "caution_only"
+  },
+  {
+    "baseline_scenario": {
+      "ego_initial_speed_mps": 10.0,
+      "ego_max_braking_deceleration_mps2": 100.0,
+      "ego_reaction_time_s": 0.0,
+      "initial_gap_m": 30.0,
+      "lead_brake_start_s": 0.0,
+      "lead_braking_deceleration_mps2": 5.0,
+      "lead_initial_speed_mps": 10.0,
+      "max_simulation_time_s": 3.0,
+      "simulation_step_s": 0.5,
+      "strategy": "no_assist"
+    },
+    "description": "Warning activation without changing the No Assist trajectory.",
+    "scenario_id": "warning_without_motion_change"
+  },
+  {
+    "baseline_scenario": {
+      "ego_initial_speed_mps": 10.0,
+      "ego_max_braking_deceleration_mps2": 8.0,
+      "ego_reaction_time_s": 0.0,
+      "initial_gap_m": 15.0,
+      "lead_brake_start_s": 0.0,
+      "lead_braking_deceleration_mps2": 5.0,
+      "lead_initial_speed_mps": 10.0,
+      "max_simulation_time_s": 5.0,
+      "simulation_step_s": 0.5,
+      "strategy": "no_assist"
+    },
+    "description": "Baseline AEB avoids a collision seen without assistance.",
+    "scenario_id": "aeb_avoids_collision"
+  },
+  {
+    "baseline_scenario": {
+      "ego_initial_speed_mps": 20.0,
+      "ego_max_braking_deceleration_mps2": 8.0,
+      "ego_reaction_time_s": 0.0,
+      "initial_gap_m": 30.0,
+      "lead_brake_start_s": 0.0,
+      "lead_braking_deceleration_mps2": 4.0,
+      "lead_initial_speed_mps": 15.0,
+      "max_simulation_time_s": 5.0,
+      "simulation_step_s": 0.5,
+      "strategy": "no_assist"
+    },
+    "description": "Baseline AEB delays but does not avoid the collision.",
+    "scenario_id": "aeb_unavoidable_collision"
+  },
+  {
+    "baseline_scenario": {
+      "ego_initial_speed_mps": 20.0,
+      "ego_max_braking_deceleration_mps2": 8.0,
+      "ego_reaction_time_s": 0.0,
+      "initial_gap_m": 10.0,
+      "lead_brake_start_s": 0.75,
+      "lead_braking_deceleration_mps2": 4.0,
+      "lead_initial_speed_mps": 10.0,
+      "max_simulation_time_s": 1.1,
+      "simulation_step_s": 0.5,
+      "strategy": "no_assist"
+    },
+    "description": "Initial Emergency with an internal brake boundary and shortened step.",
+    "scenario_id": "initial_emergency_and_boundaries"
+  }
+]

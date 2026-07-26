@@ -152,3 +152,12 @@
   state separate in adapter reports. SUMO may not replace the internal runner.
 - SUMO experiments use headless `sumo`, a unique TraCI connection, fixed seed,
   and cleanup in all success and failure paths; do not launch `sumo-gui`.
+- Validate successful Dashboard API responses before storing them. Reject missing
+  required fields, non-finite values, unknown stable enums, incompatible schema
+  versions, and invalid frame/event ordering with `response_contract_error`.
+- Successful-response validation may accept additive fields but must not
+  recalculate motion, metrics, risk, collision, or summaries in the frontend.
+- Keep committed API v1 fixtures deterministic. Verification checks fixture drift
+  and must never rewrite fixtures automatically.
+- Keep the default verification profile independent of optional SUMO. Strict SUMO
+  verification must fail rather than skip when the supported runtime is absent.

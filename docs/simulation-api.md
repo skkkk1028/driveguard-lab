@@ -54,6 +54,13 @@ snapshot and are returned directly. Domain tuples serialize as JSON arrays, enum
 members use their stable string values, and unavailable metrics serialize as
 `null`.
 
+Since Stage 15, the Dashboard validates successful response structure, finite
+numbers, stable enums, schema version, and playback ordering before storing a
+result. Incompatible HTTP 200 payloads become `response_contract_error`; this
+client-side boundary does not recalculate any simulation value. See
+[`integration-hardening.md`](integration-hardening.md) for the shared fixture and
+verification workflow.
+
 ## Risk thresholds
 
 Each POST endpoint accepts an optional `risk_thresholds` object. When omitted,

@@ -54,5 +54,10 @@ endpoint or a production vehicle interface.
 ```powershell
 .\.venv\Scripts\python.exe -m ruff check .
 .\.venv\Scripts\python.exe -m mypy app tests
-.\.venv\Scripts\python.exe -m pytest
+.\.venv\Scripts\python.exe -m pytest -m "not sumo"
 ```
+
+The repository-level `scripts/verify.ps1` also checks shared API fixtures and the
+frontend without exercising an optional SUMO installation. Use
+`scripts/verify-sumo.ps1` from the repository root for a fail-closed live SUMO
+gate.

@@ -19,6 +19,13 @@ state. Regression scenarios remain presets only; this frontend does not run the
 complete regression suite. Persistence, export, streaming, maps, and real vehicle
 interfaces are reserved for later work.
 
+Successful API responses are validated at runtime before they reach React. The
+client rejects incompatible schema versions, missing required fields, unknown
+stable enum values, non-finite numbers, and invalid frame/event sequences with
+`response_contract_error`. It permits additive fields and does not recalculate
+simulation behavior. Shared backend-generated examples live in
+`../contracts/api-v1`.
+
 ## Backend connection
 
 Start the FastAPI application before the frontend. The dashboard uses
