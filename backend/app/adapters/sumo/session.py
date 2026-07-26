@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import subprocess
+import time
 from contextlib import suppress
 from dataclasses import dataclass
 from pathlib import Path
@@ -23,6 +24,8 @@ EDGE_ID = "driveguard"
 LANE_ID = "driveguard_0"
 POSITION_OFFSET_M = 1_000.0
 VEHICLE_LENGTH_M = 0.1
+TEMPORARY_DIRECTORY_CLEANUP_ATTEMPTS = 20
+TEMPORARY_DIRECTORY_CLEANUP_RETRY_DELAY_S = 0.05
 
 
 @dataclass(frozen=True, slots=True)
@@ -33,6 +36,20 @@ class RawSumoObservation:
     ego_speed_mps: float
     lead_position_m: float
     lead_speed_mps: float
+
+
+def _cleanup_temporary_directory(directory: TemporaryDirectory[str]) -> None:
+    """Retry cleanup while Windows releases SUMO's error-log handle."""
+
+    for attempt in range(TEMPORARY_DIRECTORY_CLEANUP_ATTEMPTS):
+        try:
+            directory.cleanup()
+        except PermissionError:
+            if attempt == TEMPORARY_DIRECTORY_CLEANUP_ATTEMPTS - 1:
+                raise
+            time.sleep(TEMPORARY_DIRECTORY_CLEANUP_RETRY_DELAY_S)
+        else:
+            return
 
 
 class SumoSession(Protocol):
@@ -154,7 +171,7 @@ class TraCISumoSession:
                 self._connection.close(False)
             self._connection = None
         if self._temporary_directory is not None:
-            self._temporary_directory.cleanup()
+            _cleanup_temporary_directory(self._temporary_directory)
             self._temporary_directory = None
 
     def initialize_vehicles(

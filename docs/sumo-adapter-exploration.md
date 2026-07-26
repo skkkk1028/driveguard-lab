@@ -49,6 +49,10 @@ optional package's `SUMO_HOME`, `SUMO_HOME`, then system `PATH`. An explicitly
 named but missing binary is an error; it is never silently ignored. The adapter
 rejects `sumo-gui` and runs only headless `sumo` processes.
 
+On Windows, SUMO can release its error-log handle shortly after TraCI closes.
+The adapter retries cleanup of only its own temporary experiment directory for a
+bounded one-second window before reporting a cleanup failure.
+
 ## Command line experiments
 
 All commands emit a report using the adapter-local schema version `0.1` as JSON
