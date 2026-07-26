@@ -1,5 +1,8 @@
 # FastAPI Simulation API
 
+The application/OpenAPI release version is `1.0.0`. Serialized simulation and
+evaluation contracts retain schema version `1.0`.
+
 Stage 11 exposes the deterministic simulation core through a synchronous,
 stateless HTTP API. The API does not persist requests, assign run IDs, select a
 best strategy, or change any domain calculation.

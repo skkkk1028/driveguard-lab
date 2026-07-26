@@ -1,12 +1,15 @@
 """FastAPI entry point for DriveGuard Lab."""
 
-from typing import Literal, TypedDict
+from typing import Literal
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from typing_extensions import TypedDict
 
+from app import APP_VERSION
 from app.api import router as simulation_router
 from app.api.errors import register_error_handlers
+from app.delivery import mount_dashboard
 
 
 class HealthResponse(TypedDict):
@@ -18,6 +21,11 @@ class HealthResponse(TypedDict):
 
 app = FastAPI(
     title="DriveGuard Lab API",
+    version=APP_VERSION,
+    description=(
+        "Deterministic one-dimensional collision-risk simulation API for "
+        "teaching and research. Not a safety-certified vehicle controller."
+    ),
     docs_url="/docs",
     redoc_url=None,
     openapi_url="/openapi.json",
@@ -41,3 +49,6 @@ def health() -> HealthResponse:
     """Report that the API process is available."""
 
     return {"status": "ok", "service": "driveguard-api"}
+
+
+mount_dashboard(app)

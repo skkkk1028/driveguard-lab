@@ -17,7 +17,7 @@ try {
     }
 
     Write-Host "[2/2] SUMO: live replay and native probe tests"
-    & $BackendPython -m pytest -m sumo --strict-markers
+    & $BackendPython -m pytest -p no:cacheprovider -m sumo --strict-markers
     if ($LASTEXITCODE -ne 0) { throw "Strict SUMO tests failed." }
 }
 finally {

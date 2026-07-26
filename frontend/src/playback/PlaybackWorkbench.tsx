@@ -62,29 +62,81 @@ function points(
   return frames.map((frame) => ({ time: frame.time_s, value: selector(frame) }));
 }
 
-function RoadScene({ frame }: { frame: SimulationFrame }) {
-  const leadOffset = Math.tanh(frame.metrics.gap_m / 20) * 52;
+function RoadScene({
+  frame,
+  frames,
+}: {
+  frame: SimulationFrame;
+  frames: readonly SimulationFrame[];
+}) {
+  const world = useMemo(() => {
+    let minimum = Number.POSITIVE_INFINITY;
+    let maximum = Number.NEGATIVE_INFINITY;
+    for (const retainedFrame of frames) {
+      minimum = Math.min(
+        minimum,
+        retainedFrame.ego.position_m,
+        retainedFrame.lead.position_m,
+      );
+      maximum = Math.max(
+        maximum,
+        retainedFrame.ego.position_m,
+        retainedFrame.lead.position_m,
+      );
+    }
+    return Number.isFinite(minimum) && Number.isFinite(maximum)
+      ? { minimum, maximum }
+      : { minimum: 0, maximum: 1 };
+  }, [frames]);
+  const worldSpan = Math.max(world.maximum - world.minimum, 1);
+  const positionPercent = (positionM: number) =>
+    13 + ((positionM - world.minimum) / worldSpan) * 74;
   return (
     <section className="road-panel" aria-labelledby="road-heading">
       <div className="panel-title-row">
         <div>
-          <p className="panel-kicker">Point-vehicle scene</p>
-          <h3 id="road-heading">道路位置示意</h3>
+          <p className="panel-kicker">Fixed ground coordinates</p>
+          <h3 id="road-heading">地面坐标道路示意</h3>
         </div>
         <span>Gap {value(frame.metrics.gap_m, "m")}</span>
       </div>
-      <div className="road-scene" role="img" aria-label={`自车固定参考，前车间距 ${String(frame.metrics.gap_m)} 米`}>
+      <div
+        className="road-scene"
+        role="img"
+        aria-label={`固定地面坐标，自车位置 ${String(frame.ego.position_m)} 米，前车位置 ${String(frame.lead.position_m)} 米，间距 ${String(frame.metrics.gap_m)} 米`}
+      >
         <div className="road-markings" aria-hidden="true" />
-        <div className="scene-vehicle ego-vehicle" style={{ left: "28%" }}>
-          <span>自车</span>
+        <div
+          className="scene-vehicle ego-vehicle"
+          style={{
+            left: `${String(positionPercent(frame.ego.position_m))}%`,
+            transform: "translate(-100%, -50%)",
+          }}
+        >
+          <span>自车 · {value(frame.ego.position_m, "m")}</span>
           <i />
         </div>
-        <div className="scene-vehicle lead-vehicle" style={{ left: `calc(28% + ${String(leadOffset)}%)` }}>
-          <span>前车</span>
+        <div
+          className="scene-vehicle lead-vehicle"
+          style={{
+            left: `${String(positionPercent(frame.lead.position_m))}%`,
+            transform: "translate(0, -50%)",
+          }}
+        >
+          <span>前车 · {value(frame.lead.position_m, "m")}</span>
           <i />
+        </div>
+        <div className="road-coordinate-scale" aria-hidden="true">
+          <span>{value(world.minimum, "m")}</span>
+          <strong>固定地面坐标</strong>
+          <span>{value(world.maximum, "m")}</span>
         </div>
       </div>
-      <p className="scene-note">车辆外形仅为位置示意；碰撞仍按点车辆帧状态 gap_m ≤ 0 判定。</p>
+      <p className="scene-note">
+        圆点标出 API 返回的绝对 position_m；为匹配点车辆碰撞规则，自车车身向参考点后方延伸，
+        前车车身向参考点前方延伸，因此 Gap &gt; 0 时分离、Gap = 0 时接触、Gap &lt; 0 时重叠。
+        播放不插值保留帧之间的状态，车辆外形不代表真实尺寸。
+      </p>
     </section>
   );
 }
@@ -215,6 +267,10 @@ export function PlaybackWorkbench({ result }: { result: DashboardResult }) {
   const activeEnd = activeTrack.result.frames.at(-1)?.time_s ?? 0;
   const duration = model.timeline.at(-1) ?? 0;
   const terminated = playback.time >= activeEnd;
+  const roadFrames = useMemo(
+    () => model.tracks.flatMap((track) => track.result.frames),
+    [model.tracks],
+  );
 
   useEffect(() => {
     headingRef.current?.focus();
@@ -278,11 +334,11 @@ export function PlaybackWorkbench({ result }: { result: DashboardResult }) {
   ], [activeTrack.result.frames]);
 
   const riskReferences = useMemo<ReferenceLine[]>(() => [
-    { id: "emergency-ttc", label: "Emergency TTC", value: model.thresholds.emergency_ttc_s, color: "#a83d35" },
-    { id: "danger-ttc", label: "Danger TTC", value: model.thresholds.danger_ttc_s, color: "#c1663c" },
-    { id: "caution-ttc", label: "Caution TTC", value: model.thresholds.caution_ttc_s, color: "#cf9e36" },
-    { id: "danger-thw", label: "Danger THW", value: model.thresholds.danger_thw_s, color: "#7856a8" },
-    { id: "caution-thw", label: "Caution THW", value: model.thresholds.caution_thw_s, color: "#536ea8" },
+    { id: "emergency-ttc", label: "Emergency TTC", value: model.thresholds.emergency_ttc_s, color: "#a83d35", labelSide: "right" },
+    { id: "danger-ttc", label: "Danger TTC", value: model.thresholds.danger_ttc_s, color: "#c1663c", labelSide: "right" },
+    { id: "caution-ttc", label: "Caution TTC", value: model.thresholds.caution_ttc_s, color: "#cf9e36", labelSide: "right" },
+    { id: "danger-thw", label: "Danger THW", value: model.thresholds.danger_thw_s, color: "#7856a8", labelSide: "left" },
+    { id: "caution-thw", label: "Caution THW", value: model.thresholds.caution_thw_s, color: "#536ea8", labelSide: "left" },
   ], [model.thresholds]);
 
   function chooseStrategy(strategy: DrivingStrategy) {
@@ -369,7 +425,7 @@ export function PlaybackWorkbench({ result }: { result: DashboardResult }) {
       </div>
 
       <div className="inspection-grid">
-        <RoadScene frame={activeFrame} />
+        <RoadScene frame={activeFrame} frames={roadFrames} />
         <CurrentFramePanel
           frame={activeFrame}
           frameIndex={activeFrameIndex}

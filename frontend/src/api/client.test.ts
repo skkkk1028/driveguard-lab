@@ -4,7 +4,12 @@ import type {
   SimulationRequest,
   StrategyEvaluationRequest,
 } from "./types";
-import { ApiClientError, createApiClient, DEFAULT_API_BASE_URL } from "./client";
+import {
+  ApiClientError,
+  createApiClient,
+  defaultApiBaseUrl,
+  DEFAULT_API_BASE_URL,
+} from "./client";
 import evaluationFixture from "../../../contracts/api-v1/evaluation-boundary.json";
 import catalogFixture from "../../../contracts/api-v1/regression-scenarios.json";
 import simulationFixture from "../../../contracts/api-v1/simulation-aeb.json";
@@ -34,6 +39,11 @@ const simulationRequest: SimulationRequest = {
 };
 
 describe("DriveGuard API client", () => {
+  it("uses same-origin API requests in a production build", () => {
+    expect(defaultApiBaseUrl(true)).toBe("");
+    expect(defaultApiBaseUrl(false)).toBe("http://127.0.0.1:8000");
+  });
+
   it("uses the default API URL and lists regression scenarios", async () => {
     const fetchMock = vi
       .fn<typeof fetch>()

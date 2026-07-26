@@ -1,4 +1,4 @@
-# DriveGuard Lab Frontend
+# DriveGuard Lab Frontend v1.0
 
 This directory contains the React, TypeScript, and Vite dashboard for DriveGuard
 Lab. The Chinese research interface supports:
@@ -18,6 +18,9 @@ strategies. Playback selects discrete API frames and never interpolates physical
 state. Regression scenarios remain presets only; this frontend does not run the
 complete regression suite. Persistence, export, streaming, maps, and real vehicle
 interfaces are reserved for later work.
+
+The v1.0 frontend requires Node.js 24.x and npm 11.x. It remains a private
+application package and is built as static assets; it is not published to npm.
 
 Successful API responses are validated at runtime before they reach React. The
 client rejects incompatible schema versions, missing required fields, unknown
@@ -42,7 +45,7 @@ allowed by the backend CORS configuration.
 ## Commands
 
 ```powershell
-npm.cmd install
+npm.cmd ci
 npm.cmd run dev
 npm.cmd run lint
 npm.cmd run typecheck

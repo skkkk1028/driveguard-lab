@@ -1,12 +1,12 @@
 # Architecture
 
-DriveGuard Lab v1.0 is planned as a deterministic, one-dimensional longitudinal
+DriveGuard Lab v1.0 is a deterministic, one-dimensional longitudinal
 vehicle simulation and risk-assessment platform.
 
 ```text
 React Dashboard configuration
-        ↓ HTTP /api/v1
-FastAPI validation and conversion
+        ↓ same-origin HTTP /api/v1
+FastAPI validation, conversion, and optional static delivery
         ↓
 Simulation Runner / Strategy Evaluation
         ↓
@@ -73,6 +73,11 @@ Implemented:
 - Shared deterministic API v1 fixtures checked by both backend and frontend tests
 - Expanded whole-catalog invariants and explicit base-versus-SUMO verification
   profiles
+- Application release metadata, Apache-2.0 licensing, reproducible package
+  checks, and CI-ready Python/Node validation definitions
+- Multi-stage production container that builds the Dashboard with Node 24 and
+  serves it from FastAPI under one origin, plus a Render Blueprint and container
+  CI smoke test
 
 Not implemented:
 
@@ -110,7 +115,11 @@ regression execution returns evaluation data; pytest owns pass/fail expectations
   runs no HTTP endpoints or Dashboard controls, and uses an adapter-local report
   schema (`0.1`) rather than changing domain schema `1.0`.
 
-The FastAPI application exposes synchronous, stateless `/api/v1` endpoints. It
+The FastAPI application exposes synchronous, stateless `/api/v1` endpoints. In
+local development the Vite and API processes remain separate. A production
+container sets `DRIVEGUARD_STATIC_DIR`, mounts the validated Vite build after all
+API routes, and serves the Dashboard, health check, OpenAPI, and simulation API
+from one origin. It
 uses Pydantic only for HTTP request and error models; existing domain dataclasses
 remain the response contracts and retain schema version `1.0`. The React
 Dashboard calls the single-simulation and three-strategy-evaluation endpoints and

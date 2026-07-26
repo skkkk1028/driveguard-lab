@@ -1,131 +1,145 @@
-# DriveGuard Lab
+# DriveGuard Lab v1.0
 
-DriveGuard Lab 是一个面向智能驾驶危险场景的可重复仿真与碰撞风险研究平台。
+DriveGuard Lab 是一个面向智能驾驶危险场景的可重复仿真与碰撞风险研究平台。v1.0
+聚焦一维纵向前车急刹场景，通过确定性点车辆模型研究 Gap、TTC、THW、理论制动距离、
+风险等级，以及 No Assist、Warning Only 和基线 AEB 三种策略。
 
-## 当前开发状态
+当前仓库是 **v1.0 发布候选**。它适合教学、软件实验和可重复研究，不是功能安全认证
+产品，不得用于控制真实车辆，也不应把默认阈值解释为行业标准或安全保证。
 
-阶段 1 至阶段 15 已完成工程基线、领域数据契约、基础运动与风险计算，No Assist、
-Warning Only 和基线 AEB 的确定性运行，以及三策略评估和六个标准回归场景。评估结果
-包含碰撞、间距、触发和干预指标，但不生成主观策略排名。上述能力现已通过版本化
-FastAPI 端点提供；中文 Dashboard 已支持配置并运行单策略仿真或三策略评估、查看
-紧凑摘要，并对完整结果进行逐帧播放、事件跳转和联动 SVG 曲线检查。阶段 14 还提供
-隔离、可选的 SUMO 回放与原生探针实验适配器；它不改变 API、Dashboard 或内部仿真器。
-阶段 15 增加成功响应运行时校验、共享 API 契约样本、完整回归不变量和明确分离的基础/
-SUMO 验证门禁，但不改变 API 或领域 schema `1.0`。
+## 能做什么
 
-## v1.0 目标范围
+- 配置并运行 No Assist、Warning Only 或基线 AEB 单策略仿真；
+- 使用同一物理参数执行三策略评估，不生成主观排名或综合安全分数；
+- 使用六个标准回归场景作为实验预设；
+- 查看碰撞、最小 Gap/TTC、策略触发和干预时长摘要；
+- 逐帧播放结果、跳转事件并检查速度、Gap、制动距离、TTC 和 THW 曲线；
+- 通过同步 FastAPI 端点执行仿真与回归套件；
+- 可选使用隔离的 headless SUMO 1.27.1 回放和原生探针实验。
 
-v1.0 计划通过项目内部的一维确定性纵向仿真引擎，研究前车急刹场景中的 TTC、
-THW、制动距离、碰撞风险和 AEB 控制策略。当前已完成核心领域功能、标准策略评估、
-仿真 API、网页配置工作流、离散逐帧播放和结果可视化。
+## 环境要求
 
-## 技术栈
+| 组件 | v1.0 支持范围 |
+| --- | --- |
+| Python | 3.11 或更高；发布候选验证 3.11 与 3.14 |
+| Node.js | 24.x |
+| npm | 11.x |
+| 浏览器 | 支持现代 ES2022、SVG 和 `requestAnimationFrame` 的桌面浏览器 |
+| SUMO | 可选，固定为 headless Eclipse SUMO 1.27.1 |
 
-- 后端：Python 3.11+、FastAPI、Uvicorn、pytest、Ruff、mypy（可选 Eclipse SUMO）
-- 前端：React、TypeScript、Vite、npm、Vitest、React Testing Library、ESLint
+## 安装
 
-## 目录结构
-
-```text
-driveguard-lab/
-├── backend/       # FastAPI 应用、后端测试和 Python 工具配置
-├── contracts/     # 后端生成且由前后端共同验证的 API v1 样本
-├── frontend/      # React/Vite 应用和前端测试
-├── docs/          # 架构边界与开发路线图
-├── scripts/       # 本地验证脚本
-├── .editorconfig
-├── .gitignore
-├── AGENTS.md
-└── README.md
-```
-
-## 后端安装与运行
-
-需要 Python 3.11 或更高版本。在仓库根目录使用 PowerShell：
+在 PowerShell 中进入仓库根目录：
 
 ```powershell
+cd "F:\workspace\Project8-DriveGuard Lab\driveguard-lab"
+
 cd backend
 python -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -e ".[dev]"
-.\.venv\Scripts\python.exe -m uvicorn app.main:app --reload
+
+cd ..\frontend
+npm.cmd ci
 ```
 
-如需执行阶段 14 的 headless SUMO 实验，再安装可选依赖：
+如果需要 SUMO 实验，将后端安装命令改为：
 
 ```powershell
 .\.venv\Scripts\python.exe -m pip install -e ".[dev,sumo]"
-.\.venv\Scripts\python.exe -m app.adapters.sumo doctor
 ```
 
-详细安装、CLI 和建模边界见 [`docs/sumo-adapter-exploration.md`](docs/sumo-adapter-exploration.md)。
+## 启动 Dashboard
 
-健康检查地址为 `http://127.0.0.1:8000/health`，交互式 API 文档地址为
-`http://127.0.0.1:8000/docs`。阶段 11 API 的请求、响应和限制见
-[`docs/simulation-api.md`](docs/simulation-api.md)。
+打开两个 PowerShell 窗口。
 
-## 前端安装与运行
-
-需要 Node.js 和 npm，并先按上一节启动后端：
+终端一：
 
 ```powershell
-cd frontend
-npm.cmd install
+cd "F:\workspace\Project8-DriveGuard Lab\driveguard-lab\backend"
+.\.venv\Scripts\python.exe -m uvicorn app.main:app --reload
+```
+
+终端二：
+
+```powershell
+cd "F:\workspace\Project8-DriveGuard Lab\driveguard-lab\frontend"
 npm.cmd run dev
 ```
 
-Dashboard 默认请求 `http://127.0.0.1:8000`。如需使用其他后端地址，可在
-`frontend/.env.local` 中设置 `VITE_API_BASE_URL`。标准回归场景在本阶段只作为配置
-预设，不会从页面运行完整回归套件。详细工作流见
-[`docs/dashboard-workflow.md`](docs/dashboard-workflow.md)，播放语义见
-[`docs/simulation-playback.md`](docs/simulation-playback.md)。
+浏览器打开 `http://localhost:5173`。后端健康检查位于
+`http://127.0.0.1:8000/health`，交互式 API 文档位于
+`http://127.0.0.1:8000/docs`。
 
-如果系统允许执行 `npm.ps1`，也可以使用 `npm` 替代 `npm.cmd`。项目不会要求修改
-PowerShell 的全局执行策略。
+## 第一次实验
 
-## 测试与验证
+1. 在“标准场景预设”中选择“AEB 避免碰撞”。
+2. 保持“单策略仿真”和“AEB”，点击“运行单策略仿真”。
+3. 查看摘要中的碰撞结果、最小间距和 AEB 触发时间。
+4. 使用播放、前后帧、事件跳转和曲线联动检查完整离散结果。
+5. 切换到“三策略评估”，用完全相同的物理配置比较三种策略原始结果。
 
-准备好 `backend/.venv` 和 `frontend/node_modules` 后，在仓库根目录执行：
+表单中的物理量均使用 SI 单位。更完整的操作和结果解释见
+[`docs/user-guide.md`](docs/user-guide.md)。
+
+## 固定公网网址
+
+仓库提供一个生产容器：构建时生成 Dashboard，运行时由同一个 FastAPI 服务在根路径
+托管静态页面和 `/api/v1`，因此公网只需要一个 HTTPS 域名。`render.yaml` 可在 Render
+上创建新加坡区域的公开 Web Service，并使用 `/health` 作为健康检查。
+
+完整的部署、平台限制、自定义域名和更新步骤见
+[`docs/public-deployment.md`](docs/public-deployment.md)。创建实际公网服务仍需要一个可由
+Render 读取的 Git 仓库和用户自己的 Render 账号；仓库不包含部署凭据。
+
+## 验证
+
+确定性基础门禁不依赖 SUMO：
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\verify.ps1
 ```
 
-该命令执行可重复的基础门禁并明确排除可选 SUMO。安装受支持的 headless SUMO 1.27.1
-后，再执行严格 SUMO 验证；运行时缺失会直接失败而不是跳过：
+严格 SUMO 门禁会在运行时缺失时失败而不是跳过：
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\verify-sumo.ps1
 ```
 
-也可以分别执行：
+完整发布候选检查还会验证版本、许可证、文档链接、后端 wheel/sdist 和干净安装：
 
 ```powershell
-cd backend
-.\.venv\Scripts\python.exe -m ruff check .
-.\.venv\Scripts\python.exe -m mypy app tests
-.\.venv\Scripts\python.exe -m pytest -m "not sumo"
-
-cd ..\frontend
-npm.cmd run lint
-npm.cmd run typecheck
-npm.cmd run test
-npm.cmd run build
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\release-check.ps1
 ```
 
-## 安全声明
+## 文档
 
-本项目仅用于软件学习与仿真实验，不得用于控制真实车辆。项目未经过功能安全认证，
-也不构成自动驾驶或真实车辆控制产品。
+从 [`docs/index.md`](docs/index.md) 开始浏览用户指南、模型语义、API、策略、播放、SUMO
+和发布验证文档。v1.0 已知边界与实证环境记录在
+[`docs/release-readiness.md`](docs/release-readiness.md)。
 
-## 尚未实现
+## 目录
 
-当前已有简化的运动推进、风险指标和分类、点车辆碰撞状态，三种策略完整运行器，以及
-可序列化的跨策略评估和标准回归套件。碰撞、首次 Warning 和首次 AEB 时间均为离散
-帧时刻。现有 API 可运行单策略仿真、三策略评估和标准回归套件；Dashboard 可配置
-和运行前两类操作，并展示摘要、离散帧播放、当前策略事件以及联动 SVG 图表。尚无
-ACC 控制、结果持久化或导出、实时流式仿真、数据库、WebSocket、CARLA 或
-OpenSCENARIO 集成。TraCI 仅存在于隔离的可选 SUMO 实验适配器中。
+```text
+driveguard-lab/
+├── backend/       # FastAPI、领域/仿真核心和后端测试
+├── contracts/     # 前后端共同验证的 API v1 JSON 样本
+├── docs/          # 用户、模型、接口和发布文档
+├── frontend/      # React/Vite Dashboard
+├── scripts/       # 基础、SUMO 和发布候选验证入口
+├── Dockerfile     # Dashboard + API 单域名生产镜像
+├── render.yaml    # Render 公网服务 Blueprint
+├── LICENSE
+├── CHANGELOG.md
+└── THIRD_PARTY_NOTICES.md
+```
+
+## 明确不包含
+
+v1.0 不包含 ACC、多车道或横向运动、传感器/感知模型、随机噪声、结果持久化与导出、
+数据库、WebSocket、实时流、CARLA、OpenSCENARIO、真实车辆接口或功能安全认证。SUMO
+适配器只是隔离实验工具，不替代内部仿真器，也不接入 Dashboard 或 API。
 
 ## 许可证
 
-开源许可证尚未确定，本阶段不自动添加许可证文件。
+项目源代码采用 [Apache License 2.0](LICENSE)。第三方和可选依赖说明见
+[`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md)。

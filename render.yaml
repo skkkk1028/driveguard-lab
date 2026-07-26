@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: driveguard-lab
+    runtime: docker
+    plan: free
+    region: singapore
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /health
+    autoDeployTrigger: checksPass

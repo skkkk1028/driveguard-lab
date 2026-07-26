@@ -219,12 +219,32 @@
   background: repeating-linear-gradient(90deg, #f6eac7 0 2.5rem, transparent 2.5rem 4rem);
 }
 
+.road-coordinate-scale {
+  position: absolute;
+  right: 8%;
+  bottom: 0.45rem;
+  left: 8%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #e6efee;
+  font-family: "SFMono-Regular", Consolas, monospace;
+  font-size: 0.58rem;
+  pointer-events: none;
+}
+
+.road-coordinate-scale strong {
+  color: #c5d6d4;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+}
+
 .scene-vehicle {
   position: absolute;
   top: 50%;
-  width: 4.5rem;
-  height: 2.3rem;
-  transform: translate(-50%, -50%);
+  width: min(4.5rem, 12%);
+  height: auto;
+  aspect-ratio: 4.5 / 2.3;
   border-radius: 0.6rem 0.9rem 0.9rem 0.6rem;
   transition: left 100ms linear;
 }
@@ -257,9 +277,30 @@
   border: 2px solid #82ded2;
 }
 
+.ego-vehicle span {
+  right: 0;
+  left: auto;
+  transform: none;
+}
+
+.ego-vehicle i {
+  left: 100%;
+}
+
 .lead-vehicle {
   background: #d98c42;
   border: 2px solid #f0c894;
+}
+
+.lead-vehicle span {
+  top: calc(100% + 0.35rem);
+  bottom: auto;
+  left: 0;
+  transform: none;
+}
+
+.lead-vehicle i {
+  left: 0;
 }
 
 .scene-note,
@@ -432,6 +473,11 @@
 
 .chart-reference-label {
   font-size: 11px;
+  paint-order: stroke fill;
+  stroke: #f4f8f7;
+  stroke-width: 4px;
+  stroke-linejoin: round;
+  pointer-events: none;
 }
 
 .chart-line {

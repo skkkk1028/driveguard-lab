@@ -161,3 +161,7 @@
   and must never rewrite fixtures automatically.
 - Keep the default verification profile independent of optional SUMO. Strict SUMO
   verification must fail rather than skip when the supported runtime is absent.
+- Keep application/package release version `1.0.0` separate from simulation data
+  schema version `1.0`; a release metadata change must not silently migrate data.
+- Stage 16 release checks may build temporary artifacts, but must not commit build
+  output, create tags, publish packages, configure a remote, or claim hosted CI ran.

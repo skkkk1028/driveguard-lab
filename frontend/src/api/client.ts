@@ -14,7 +14,11 @@ import {
   ResponseContractViolation,
 } from "./contract";
 
-export const DEFAULT_API_BASE_URL = "http://127.0.0.1:8000";
+export function defaultApiBaseUrl(production = import.meta.env.PROD): string {
+  return production ? "" : "http://127.0.0.1:8000";
+}
+
+export const DEFAULT_API_BASE_URL = defaultApiBaseUrl();
 
 export class ApiClientError extends Error {
   readonly code: string;

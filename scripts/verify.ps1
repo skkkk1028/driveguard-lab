@@ -14,7 +14,7 @@ if ($LASTEXITCODE -ne 0) { throw "API contract fixture check failed." }
 Write-Host "[2/8] Backend: Ruff"
 Push-Location (Join-Path $ProjectRoot "backend")
 try {
-    & $BackendPython -m ruff check .
+    & $BackendPython -m ruff check . ..\scripts
     if ($LASTEXITCODE -ne 0) { throw "Ruff failed." }
 
     Write-Host "[3/8] Backend: mypy"
@@ -22,7 +22,7 @@ try {
     if ($LASTEXITCODE -ne 0) { throw "mypy failed." }
 
     Write-Host "[4/8] Backend: pytest (deterministic base profile, SUMO excluded)"
-    & $BackendPython -m pytest -m "not sumo"
+    & $BackendPython -m pytest -p no:cacheprovider -m "not sumo"
     if ($LASTEXITCODE -ne 0) { throw "pytest failed." }
 }
 finally {

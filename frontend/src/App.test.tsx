@@ -111,6 +111,7 @@ describe("Dashboard configuration workflow", () => {
     expect(
       screen.getByRole("heading", { name: "危险场景仿真实验台" }),
     ).toBeInTheDocument();
+    expect(screen.getByText("DriveGuard Lab · v1.0")).toBeInTheDocument();
     expect(await screen.findByRole("option", { name: "AEB 避免碰撞" })).toBeInTheDocument();
     expect(screen.getByLabelText("标准场景预设")).toHaveValue(
       "aeb_avoids_collision",

@@ -4,17 +4,31 @@ build-backend = "hatchling.build"
 
 [project]
 name = "driveguard-api"
-version = "0.1.0"
-description = "Foundation API for DriveGuard Lab"
+version = "1.0.0"
+description = "Deterministic collision-risk simulation API for DriveGuard Lab"
 readme = "README.md"
 requires-python = ">=3.11"
+license = "Apache-2.0"
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Education",
+    "Intended Audience :: Science/Research",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Typing :: Typed",
+]
 dependencies = [
     "fastapi>=0.115,<1",
+    "typing-extensions>=4.12; python_version < '3.12'",
     "uvicorn>=0.34,<1",
 ]
 
 [project.optional-dependencies]
 dev = [
+    "build>=1.2,<2",
     "httpx2>=2.7,<3",
     "mypy>=1.15,<2",
     "pytest>=8.3,<10",

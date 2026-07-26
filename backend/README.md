@@ -1,4 +1,4 @@
-# DriveGuard Lab Backend
+# DriveGuard Lab Backend v1.0
 
 This directory contains the FastAPI application and the pure Python domain
 contracts for DriveGuard Lab. In addition to `GET /health`, the versioned API can
@@ -23,6 +23,9 @@ the internal point-vehicle simulation. See
 The interactive API documentation is available at `http://127.0.0.1:8000/docs`.
 See [`../docs/simulation-api.md`](../docs/simulation-api.md) for endpoint contracts,
 validation, resource limits, and local-development CORS behavior.
+
+The application package version and OpenAPI `info.version` are `1.0.0`. Domain
+simulation and evaluation payloads retain the independent schema version `1.0`.
 
 ## Local setup
 
@@ -61,3 +64,15 @@ The repository-level `scripts/verify.ps1` also checks shared API fixtures and th
 frontend without exercising an optional SUMO installation. Use
 `scripts/verify-sumo.ps1` from the repository root for a fail-closed live SUMO
 gate.
+
+## Package build
+
+The v1.0 release candidate builds a pure-Python wheel and source distribution:
+
+```powershell
+.\.venv\Scripts\python.exe -m build
+```
+
+Repository-level `scripts/release-check.ps1` builds into a temporary directory,
+validates package metadata, installs the wheel into a clean environment, and
+removes its temporary artifacts. The package is not automatically published.

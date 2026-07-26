@@ -137,6 +137,7 @@ describe("PlaybackWorkbench", () => {
     expect(screen.getByText("t = 0 s")).toBeInTheDocument();
     expect(screen.getByText("Safe")).toBeInTheDocument();
     expect(screen.getByText("None")).toBeInTheDocument();
+    expect(screen.getByText(/绝对 position_m/)).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: "后一帧" }));
     expect(screen.getByText("t = 0.5 s")).toBeInTheDocument();
@@ -147,6 +148,43 @@ describe("PlaybackWorkbench", () => {
     expect(screen.getByText("t = 1 s")).toBeInTheDocument();
     fireEvent.change(screen.getByRole("slider"), { target: { value: "0" } });
     expect(screen.getByText("t = 0 s")).toBeInTheDocument();
+  });
+
+  it("moves both vehicles against one fixed ground-coordinate scale", () => {
+    render(<PlaybackWorkbench result={singleResult()} />);
+    const road = screen.getByRole("img", { name: /固定地面坐标/ });
+    const ego = road.querySelector<HTMLElement>(".ego-vehicle");
+    const lead = road.querySelector<HTMLElement>(".lead-vehicle");
+    expect(ego).not.toBeNull();
+    expect(lead).not.toBeNull();
+    const initialEgoLeft = ego?.style.left;
+    const initialLeadLeft = lead?.style.left;
+
+    fireEvent.click(screen.getByRole("button", { name: "后一帧" }));
+
+    expect(ego?.style.left).not.toBe(initialEgoLeft);
+    expect(lead?.style.left).not.toBe(initialLeadLeft);
+    expect(screen.getByText("自车 · 5 m")).toBeInTheDocument();
+    expect(screen.getByText("前车 · 19 m")).toBeInTheDocument();
+  });
+
+  it("keeps illustrative vehicle bodies separated while point-vehicle gap is positive", () => {
+    const closeFrame = frame(1);
+    closeFrame.ego.position_m = 23.84;
+    closeFrame.lead.position_m = 25;
+    closeFrame.metrics.gap_m = 1.16;
+    render(<PlaybackWorkbench result={singleResult([frame(0), closeFrame])} />);
+    fireEvent.click(screen.getByRole("button", { name: "跳到末帧" }));
+
+    const road = screen.getByRole("img", { name: /间距 1.16 米/ });
+    const ego = road.querySelector<HTMLElement>(".ego-vehicle");
+    const lead = road.querySelector<HTMLElement>(".lead-vehicle");
+    expect(Number.parseFloat(ego?.style.left ?? "NaN")).toBeLessThan(
+      Number.parseFloat(lead?.style.left ?? "NaN"),
+    );
+    expect(ego).toHaveStyle({ transform: "translate(-100%, -50%)" });
+    expect(lead).toHaveStyle({ transform: "translate(0, -50%)" });
+    expect(screen.getByText(/Gap > 0 时分离/)).toBeInTheDocument();
   });
 
   it("jumps a between-frame event to the following retained frame", () => {
@@ -163,6 +201,24 @@ describe("PlaybackWorkbench", () => {
     });
     fireEvent.click(chart, { clientX: 400 });
     expect(screen.getByText("t = 0.5 s")).toBeInTheDocument();
+  });
+
+  it("places coincident TTC and THW threshold labels on opposite chart sides", () => {
+    render(<PlaybackWorkbench result={singleResult()} />);
+    const chart = screen.getByRole("img", { name: /TTC 与 THW/ });
+    const emergencyTtc = within(chart).getByText("Emergency TTC");
+    const dangerThw = within(chart).getByText("Danger THW");
+    const dangerTtc = within(chart).getByText("Danger TTC");
+    const cautionThw = within(chart).getByText("Caution THW");
+
+    expect(emergencyTtc).toHaveAttribute("text-anchor", "end");
+    expect(dangerTtc).toHaveAttribute("text-anchor", "end");
+    expect(dangerThw).toHaveAttribute("text-anchor", "start");
+    expect(cautionThw).toHaveAttribute("text-anchor", "start");
+    expect(emergencyTtc).toHaveAttribute("y", dangerThw.getAttribute("y"));
+    expect(dangerTtc).toHaveAttribute("y", cautionThw.getAttribute("y"));
+    expect(emergencyTtc.getAttribute("x")).not.toBe(dangerThw.getAttribute("x"));
+    expect(dangerTtc.getAttribute("x")).not.toBe(cautionThw.getAttribute("x"));
   });
 
   it("supports a single-frame result and marks a collision result terminated", () => {

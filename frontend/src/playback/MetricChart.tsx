@@ -21,6 +21,7 @@ export interface ReferenceLine {
   value: number;
   color: string;
   dashed?: boolean;
+  labelSide?: "left" | "right";
 }
 
 interface MetricChartProps {
@@ -117,8 +118,12 @@ export function MetricChart({
             />
             <text
               className="chart-reference-label"
-              textAnchor="end"
-              x={WIDTH - PLOT.right - 4}
+              textAnchor={reference.labelSide === "left" ? "start" : "end"}
+              x={
+                reference.labelSide === "left"
+                  ? PLOT.left + 6
+                  : WIDTH - PLOT.right - 6
+              }
               y={geometry.y(reference.value) - 4}
             >
               {reference.label}

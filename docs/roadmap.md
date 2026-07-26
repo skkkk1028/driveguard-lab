@@ -19,4 +19,4 @@ Only one explicitly requested phase is implemented at a time.
 | 13 | Simulation playback and result visualization | Complete |
 | 14 | SUMO adapter exploration | Complete |
 | 15 | Integration hardening and expanded validation | Complete |
-| 16 | v1.0 documentation and release readiness | Not started |
+| 16 | v1.0 documentation and release readiness | Complete |

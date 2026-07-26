@@ -3,6 +3,7 @@
 import pytest
 from fastapi.testclient import TestClient
 
+from app import APP_VERSION
 from app.main import app
 
 client = TestClient(app)
@@ -15,6 +16,7 @@ def test_openapi_and_swagger_are_enabled_but_redoc_remains_disabled() -> None:
     assert swagger.status_code == 200
     assert "swagger-ui" in swagger.text
     assert openapi.status_code == 200
+    assert openapi.json()["info"]["version"] == APP_VERSION == "1.0.0"
     assert set(openapi.json()["paths"]) >= {
         "/health",
         "/api/v1/simulations",

@@ -10,6 +10,7 @@ __pycache__/
 .coverage
 htmlcov/
 build/
+release-artifacts/
 
 # Node.js and Vite
 node_modules/

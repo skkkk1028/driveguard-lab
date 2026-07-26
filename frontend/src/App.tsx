@@ -308,7 +308,7 @@ function App() {
 
       <section className="intro-panel" aria-labelledby="intro-heading">
         <div>
-          <p className="panel-kicker">Stage 15 · Integration hardened</p>
+          <p className="panel-kicker">DriveGuard Lab · v1.0</p>
           <h2 id="intro-heading">配置一次可重复的前车急刹实验</h2>
           <p>
             使用同一组物理参数研究 No Assist、Warning Only 与基线 AEB。

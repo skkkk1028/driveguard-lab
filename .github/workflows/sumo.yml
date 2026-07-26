@@ -1,0 +1,28 @@
+name: Strict SUMO verification
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  sumo:
+    name: Eclipse SUMO 1.27.1 live tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+          cache: pip
+          cache-dependency-path: backend/pyproject.toml
+      - name: Install backend and pinned SUMO
+        working-directory: backend
+        run: python -m pip install -e ".[dev,sumo]"
+      - name: Require supported headless runtime
+        working-directory: backend
+        run: python -m app.adapters.sumo doctor
+      - name: Run strict live SUMO suite
+        working-directory: backend
+        run: python -m pytest -m sumo --strict-markers
